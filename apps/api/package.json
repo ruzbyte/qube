@@ -12,6 +12,8 @@
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/openapi": "^1.4.13",
+    "@types/dockerode": "^3.3.47",
+    "dockerode": "^4.0.9",
     "elysia": "^1.4.21"
   }
 }
