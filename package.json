@@ -1,0 +1,11 @@
+{
+  "name": "my-stack-monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter '*' dev",
+    "build": "bun --filter '*' build"
+  }
+}
