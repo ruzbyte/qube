@@ -3,6 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "lint": "eslint"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
