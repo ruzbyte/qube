@@ -1,5 +1,6 @@
 {
   "name": "my-stack-monorepo",
+  "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"
