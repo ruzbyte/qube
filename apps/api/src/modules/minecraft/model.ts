@@ -14,7 +14,7 @@ export namespace MinecraftModel {
       // t.Literal("FABRIC"),
       // t.Literal("NEOFORGE"),
     ], { default: "VANILLA" }),
-    motd: t.Optional(t.String({ default: "Minecraft Server deployes by QUBE" })),
+    motd: t.Optional(t.String({ default: "Minecraft Server deployed by QUBE" })),
     difficulty: t.Optional(t.Union([
       t.Literal("peaceful"),
       t.Literal("easy"),

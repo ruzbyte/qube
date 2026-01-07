@@ -136,6 +136,7 @@ export class ContainerService {
     await this.verifyDockerConnection()
     const randomContainerId = randomId()
     let labels: ContainerModel.qubeLabels = {
+      'qube.server': 'true',
       'qube.server.game': params.game,
       'qube.server.name': params.name,
     }

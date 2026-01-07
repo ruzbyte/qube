@@ -9,6 +9,7 @@ export namespace ContainerModel {
 
   export const qubeLabels = t.Partial(t.Record(
     t.Union([
+      t.Literal("qube.server"),
       t.Literal("qube.server.game"),
       t.Literal("qube.server.name"),
       t.Literal("qube.server.domain"),
