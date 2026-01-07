@@ -114,8 +114,25 @@ export const container = new Elysia({ prefix: "/container" })
         500: ContainerModel.response,
       },
     }
-  )
-  .get(
+  ).put(
+    "/:id/exec",
+    ({ body, params }) => {
+      return ContainerService.execInContainer(params.id, body.cmd)
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: t.Object({
+        cmd: t.Array(t.String()),
+      }),
+      response: {
+        200: ContainerModel.responseExec,
+        404: ContainerModel.response,
+        500: ContainerModel.response,
+      },
+    }
+  ).get(
     "/list",
     ({ query }) => {
       return ContainerService.listContainers(query.all);

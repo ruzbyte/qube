@@ -57,6 +57,11 @@ export namespace ContainerModel {
   export const response = t.String()
   export type response = typeof response.static
 
+  export const responseExec = t.Object({
+    output: t.String()
+  })
+  export type responseExec = typeof responseExec.static
+
   export const responseLogs = t.Object({
     logs: t.String()
   })
