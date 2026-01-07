@@ -1,13 +1,34 @@
 import { t } from 'elysia'
 
 export namespace ContainerModel {
-  export const createContainerBody = t.Object({
 
+  export const containerInfo = t.Object({
+    name: t.String(),
+    containerName: t.String(),
+    id: t.String(),
+    image: t.String(),
+    ports: t.Array(t.String()),
+    domain: t.Nullable(t.String()),
+    attachedNetworks: t.Array(t.String()),
+    createdAt: t.String(),
+    startedAt: t.String(),
+    status: t.String(),
+  })
+  export type containerInfo = typeof containerInfo.static
+
+  export const createContainerBody = t.Object({
+    name: t.String(),
+    image: t.String(),
+    game: t.String(),
+    persistentDataPath: t.String(),
+    environment: t.Optional(t.Record(t.String(), t.String())),
+    labels: t.Optional(t.Record(t.String(), t.String())),
+    ports: t.Optional(t.Record(t.String(), t.String())),  // HostPort:ContainerPort
   })
   export type createContainerBody = typeof createContainerBody.static
 
   export const createResponse = t.Object({
-
+    id: t.String()
   })
   export type createResponse = typeof createResponse.static
 
@@ -20,4 +41,9 @@ export namespace ContainerModel {
 
   })
   export type errorResponse = typeof errorResponse.static
+
+  export const notFoundResponse = t.Object({
+
+  })
+  export type notFoundResponse = typeof errorResponse.static
 }
