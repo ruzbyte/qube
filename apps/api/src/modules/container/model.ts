@@ -1,7 +1,20 @@
 import { t } from 'elysia'
-import { traefikLabelsBody } from '../../utils/traefik'
 
 export namespace ContainerModel {
+
+  export const supportedGames = t.Union([
+    t.Literal("minecraft")
+  ])
+  export type supportedGames = typeof supportedGames.static
+
+  export const qubeLabels = t.Partial(t.Record(
+    t.Union([
+      t.Literal("qube.server.game"),
+      t.Literal("qube.server.name"),
+      t.Literal("qube.server.domain"),
+    ]), t.String()
+  ))
+  export type qubeLabels = typeof qubeLabels.static
 
   export const containerInfo = t.Object({
     name: t.String(),
@@ -11,7 +24,7 @@ export namespace ContainerModel {
     ports: t.Array(t.String()),
     domain: t.Nullable(t.String()),
     attachedNetworks: t.Array(t.String()),
-    labels: t.Record(t.String(), t.String()),
+    labels: qubeLabels,
     environment: t.Record(t.String(), t.String()),
     createdAt: t.String(),
     startedAt: t.String(),
@@ -22,12 +35,12 @@ export namespace ContainerModel {
   export const createContainerBody = t.Object({
     name: t.String(),
     image: t.String(),
-    game: t.String(),
+    game: supportedGames,
     persistentDataPath: t.String(),
     environment: t.Optional(t.Record(t.String(), t.String())),
     labels: t.Optional(t.Record(t.String(), t.String())),
     ports: t.Optional(t.Record(t.String(), t.String())),  // HostPort:ContainerPort
-    traefik: t.Optional(traefikLabelsBody)
+    startAfterCreation: t.Optional(t.Boolean({ default: false }))
   })
   export type createContainerBody = typeof createContainerBody.static
 

@@ -134,10 +134,9 @@ export class ContainerService {
   static async createContainer(params: ContainerModel.createContainerBody): Promise<ContainerModel.containerInfo> {
     await this.verifyDockerConnection()
     const randomContainerId = randomId()
-    let labels: { [key: string]: string } = {
-      'qube.server': params.game,
+    let labels: ContainerModel.qubeLabels = {
+      'qube.server.game': params.game,
       'qube.server.name': params.name,
-      'qube.server.domain': `${randomContainerId}.example.com`,
     }
 
 
@@ -151,16 +150,18 @@ export class ContainerService {
     const portsDict = params.ports || {}
     const portBindings: { [key: string]: Array<{ HostPort: string }> } = {}
     for (const port in portsDict) {
-      portBindings[`${portsDict[port]}/tcp`] = [{ HostPort: port }]
+      // ggf port/tcp or port/udp
+      portBindings[`${portsDict[port]}`] = [{ HostPort: port }]
     }
 
-    if (params.traefik && Object.keys(portsDict).length == 1) {
+    if (process.env.TRAEFIK_ENABLED === "true") {
+      if (Object.keys(portsDict).length != 1) {
+        console.log("Not possible to enable traefik with multiple or no ports")
+      }
       const traefikLabels = buildTraefikLabels({
-        slug: `server-${randomContainerId}`,
+        slug: `${params.game}-${randomContainerId.slice(0, 4)}`,
         port: `${Object.values(portsDict)[0]}`,
-        ...params.traefik,
       })
-
       labels = { ...labels, ...traefikLabels }
     }
 
@@ -182,6 +183,8 @@ export class ContainerService {
 
     const container = await docker.createContainer(containerConfig)
     await NetworkService.connectContainerToNetworks(container.id)
+
+    if (params.startAfterCreation) return await this.startContainer(container.id)
 
     return this.getContainerInfo(container.id)
 
@@ -231,13 +234,14 @@ export class ContainerService {
     }
   }
 
-  static async listContainers(all: boolean = true): Promise<ContainerModel.containerInfo[]> {
+  static async listContainers(all: boolean = true, game: ContainerModel.supportedGames | undefined = undefined): Promise<ContainerModel.containerInfo[]> {
     await this.verifyDockerConnection()
     console.info(`Listing containers, all: ${all}`)
+    const label = game ? ["qube.server.game=" + game] : ["qube.server"]
     const containers = await docker.listContainers({
       all,
       filters: {
-        "label": ["qube.server"]
+        "label": label
       }
     })
     const containerInfos = containers.map(
