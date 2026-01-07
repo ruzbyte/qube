@@ -60,7 +60,7 @@ export namespace ContainerModel {
   export const responseLogs = t.Object({
     logs: t.String()
   })
-  export type responseLogs = typeof responseId.static
+  export type responseLogs = typeof responseLogs.static
 
   export const responseId = t.Object({
     id: t.String()

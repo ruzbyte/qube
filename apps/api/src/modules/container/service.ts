@@ -271,7 +271,7 @@ export class ContainerService {
     tail: number = 50
   ) {
     await this.verifyDockerConnection()
-    console.info(`Getting logs for container with ID: ${containerId}`)
+    console.info(`Getting logs for container with ID: ${containerId}, stdout: ${stdout}, stderr: ${stderr}, tail: ${tail}`)
     const container = docker.getContainer(containerId)
     try {
       const logStream = await container.logs({ tail, stdout, stderr })

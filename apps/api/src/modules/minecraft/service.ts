@@ -9,7 +9,7 @@ export class MinecraftService {
     const gamePort = "25565"
 
     const ports: Record<string, string> = {}
-    if (config.port && config.port !== "") {
+    if (config.port) {
       ports[config.port] = gamePort
     } else {
       const nextFreePort = await PortUtils.getPortOrNextFree(gamePort)
