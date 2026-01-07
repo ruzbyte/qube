@@ -106,7 +106,14 @@ export class ContainerService {
     const enviromentDict: { [key: string]: string } = {}
     for (const envVar of cInfo.Config.Env) {
       const parts = envVar.split('=')
-      enviromentDict[parts[0]!] = parts[1] || ''
+      if (parts.length != 2) {
+        console.warn(`Skipping malformed environment variable: ${envVar}`)
+        continue
+      }
+      if (ContainerModel.secretEnvVars.includes(parts[0]!)) {
+        console.debug(`Skipping secret environment variable: ${parts[0]}`)
+      }
+      enviromentDict[parts[0]!] = parts[1]!
     }
 
     const filteredLabels = Object.entries(cInfo.Config.Labels)

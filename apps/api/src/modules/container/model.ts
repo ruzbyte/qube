@@ -18,6 +18,13 @@ export namespace ContainerModel {
   ))
   export type qubeLabels = typeof qubeLabels.static
 
+  export const secretEnvVars = [
+    "CF_API_KEY",
+    "UID",
+    "GID",
+    "EULA",
+  ]
+
   export const containerInfo = t.Object({
     name: t.String(),
     containerName: t.String(),
