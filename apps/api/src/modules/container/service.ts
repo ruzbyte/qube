@@ -263,4 +263,23 @@ export class ContainerService {
     )
     return await Promise.all(containerInfos);
   }
+
+  static async getLogs(
+    containerId: string,
+    stdout: boolean = true,
+    stderr: boolean = false,
+    tail: number = 50
+  ) {
+    await this.verifyDockerConnection()
+    console.info(`Getting logs for container with ID: ${containerId}`)
+    const container = docker.getContainer(containerId)
+    try {
+      const logStream = await container.logs({ tail, stdout, stderr })
+      const str = logStream.toString('utf-8')
+      return { logs: str }
+    } catch (err) {
+      console.error(`Failed to get logs for container with ID: ${containerId}; ${err}`)
+      throw status(404, `Failed to get logs for container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
+    }
+  }
 }

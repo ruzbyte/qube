@@ -87,6 +87,21 @@ export const container = new Elysia({ prefix: "/container" })
         500: ContainerModel.response,
       },
     }
+  ).get(
+    "/:id/logs",
+    ({ params }) => {
+      return ContainerService.getLogs(params.id);
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      response: {
+        200: ContainerModel.responseLogs,
+        404: ContainerModel.response,
+        500: ContainerModel.response,
+      },
+    }
   )
   .get(
     "/list",
