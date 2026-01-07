@@ -36,7 +36,7 @@ export class PortUtils {
   static async getPortOrNextFree(startPort: string | number): Promise<number> {
     let port = typeof startPort === 'string' ? parseInt(startPort, 10) : startPort;
 
-    const maxPort = 1000;
+    const maxPort = port + 1000;
     while (port <= maxPort) {
       const available = await this.isPortAvailable(port);
       if (available) {
