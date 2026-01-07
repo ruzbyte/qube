@@ -79,6 +79,21 @@ export class ContainerService {
     }
   }
 
+  private static async ensureContainerIsManaged(containerId: string) {
+    const container = docker.getContainer(containerId)
+    let cInfo: Docker.ContainerInspectInfo
+    try {
+      cInfo = await container.inspect()
+    } catch {
+      // Preserve existing behavior: treat non-existent containers as "not managed"
+      throw status(404, `Container with ID ${containerId} not found.` satisfies ContainerModel.response)
+    }
+    const labels = cInfo.Config && cInfo.Config.Labels ? cInfo.Config.Labels : {}
+    if (!labels['qube.server']) {
+      throw status(403, `Container with ID ${containerId} is not managed by Qube.` satisfies ContainerModel.response)
+    }
+  }
+
   private static async getContainerInfo(id: string): Promise<ContainerModel.containerInfo> {
     const c = docker.getContainer(id)
     let cInfo = null
@@ -206,12 +221,14 @@ export class ContainerService {
 
   static async getContainer(containerId: string) {
     await this.verifyDockerConnection()
+    await this.ensureContainerIsManaged(containerId)
     console.info(`Getting container info for ID: ${containerId}`)
     return this.getContainerInfo(containerId)
   }
 
   static async startContainer(containerId: string) {
     await this.verifyDockerConnection()
+    await this.ensureContainerIsManaged(containerId)
     console.info(`Starting container with ID: ${containerId}`)
     const container = docker.getContainer(containerId)
     try {
@@ -225,6 +242,7 @@ export class ContainerService {
 
   static async stopContainer(containerId: string) {
     await this.verifyDockerConnection()
+    await this.ensureContainerIsManaged(containerId)
     console.info(`Stopping container with ID: ${containerId}`)
     const container = docker.getContainer(containerId)
     try {
@@ -238,6 +256,7 @@ export class ContainerService {
 
   static async deleteContainer(containerId: string, force: boolean = false) {
     await this.verifyDockerConnection()
+    await this.ensureContainerIsManaged(containerId)
     console.info(`Deleting container with ID: ${containerId}, force: ${force}`)
     const container = docker.getContainer(containerId)
     try {
@@ -271,6 +290,7 @@ export class ContainerService {
     tail: number = 50
   ) {
     await this.verifyDockerConnection()
+    await this.ensureContainerIsManaged(containerId)
     console.info(`Getting logs for container with ID: ${containerId}, stdout: ${stdout}, stderr: ${stderr}, tail: ${tail}`)
     const container = docker.getContainer(containerId)
     try {
@@ -280,6 +300,30 @@ export class ContainerService {
     } catch (err) {
       console.error(`Failed to get logs for container with ID: ${containerId}; ${err}`)
       throw status(404, `Failed to get logs for container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
+    }
+  }
+
+  static async execInContainer(containerId: string, dockerCmd: string[]) {
+    await this.verifyDockerConnection()
+    await this.ensureContainerIsManaged(containerId)
+    console.info(`Executing command in container with ID: ${containerId}, cmd: ${dockerCmd.join(' ')}`)
+    const container = docker.getContainer(containerId)
+    try {
+      const execInstance = await container.exec({
+        Cmd: dockerCmd,
+        AttachStdout: true,
+        AttachStderr: true,
+      })
+      const outputStream = await execInstance.start({
+        Detach: false
+      })
+      const output = await outputStream.toArray()
+      const outputStr = output.map(o => o.toString('utf-8')).join('')
+      console.debug(outputStr)
+      return { output: outputStr }
+    } catch (err) {
+      console.error("Failed to exec command in container:", err)
+      throw status(404, `Failed to exec command in container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
     }
   }
 }
