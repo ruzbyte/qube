@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
 
-import { ContainerModel } from "./model.ts";
-import { ContainerService } from "./service.ts";
+import { ContainerModel } from "./model";
+import { ContainerService } from "./service";
 
 export const container = new Elysia({ prefix: '/container' })
   .post(
