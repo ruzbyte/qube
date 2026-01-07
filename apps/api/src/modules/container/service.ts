@@ -75,6 +75,14 @@ export class ContainerService {
       attachedNetworks.push(network)
     }
 
+    const enviromentDict: { [key: string]: string } = {}
+    for (const envVar of cInfo.Config.Env) {
+      const parts = envVar.split('=')
+      enviromentDict[parts[0]!] = parts[1] || ''
+    }
+
+    const filteredLabels = Object.entries(cInfo.Config.Labels).filter(([key, _]) => key.startsWith('qube.')).reduce((obj, [key, value]) => { obj[key] = value; return obj }, {} as { [key: string]: string })
+
     const containerInfo: ContainerModel.containerInfo = {
       name: cInfo.Config.Labels['qube.server.name'] || cInfo.Name,
       containerName: cInfo.Name.replace('/', ''),
@@ -83,6 +91,8 @@ export class ContainerService {
       ports: hostPorts,
       domain: cInfo.Config.Labels['qube.server.domain'] || null,
       attachedNetworks,
+      labels: filteredLabels,
+      environment: enviromentDict,
       createdAt: cInfo.Created,
       startedAt: cInfo.State.StartedAt,
       status: cInfo.State.Status,

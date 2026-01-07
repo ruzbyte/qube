@@ -10,6 +10,8 @@ export namespace ContainerModel {
     ports: t.Array(t.String()),
     domain: t.Nullable(t.String()),
     attachedNetworks: t.Array(t.String()),
+    labels: t.Record(t.String(), t.String()),
+    environment: t.Record(t.String(), t.String()),
     createdAt: t.String(),
     startedAt: t.String(),
     status: t.String(),
