@@ -36,7 +36,7 @@ export default function Navbar() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="#features">Features</Link>
+                  <Link href="/container">Containers</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>

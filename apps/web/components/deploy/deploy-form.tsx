@@ -70,7 +70,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
     type:
       slug === "bedrock" ? "BEDROCK" : isModpack ? "AUTOCURSEFORGE" : "VANILLA",
     memory: 4,
-    eula: true,
+    eula: false,
     whitelist: "",
     version: "latest",
     difficulty: "NORMAL",
