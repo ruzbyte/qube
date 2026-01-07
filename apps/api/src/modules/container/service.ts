@@ -4,6 +4,7 @@ import type { ContainerCreateOptions } from 'dockerode';
 import { ContainerModel } from './model';
 import { randomId } from 'elysia/utils';
 import { status } from 'elysia';
+import { buildTraefikLabels } from '../../utils/traefik';
 
 var docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
@@ -139,6 +140,8 @@ export class ContainerService {
       'qube.server.domain': `${randomContainerId}.example.com`,
     }
 
+
+
     labels = { ...labels, ...params.labels }
     const enviromentDict = params.environment || {}
     const env: string[] = []
@@ -149,6 +152,16 @@ export class ContainerService {
     const portBindings: { [key: string]: Array<{ HostPort: string }> } = {}
     for (const port in portsDict) {
       portBindings[`${portsDict[port]}/tcp`] = [{ HostPort: port }]
+    }
+
+    if (params.traefik && Object.keys(portsDict).length == 1) {
+      const traefikLabels = buildTraefikLabels({
+        slug: `server-${randomContainerId}`,
+        port: `${Object.values(portsDict)[0]}`,
+        ...params.traefik,
+      })
+
+      labels = { ...labels, ...traefikLabels }
     }
 
     let containerConfig: ContainerCreateOptions = {

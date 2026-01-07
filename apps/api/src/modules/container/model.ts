@@ -1,4 +1,5 @@
 import { t } from 'elysia'
+import { traefikLabelsBody } from '../../utils/traefik'
 
 export namespace ContainerModel {
 
@@ -26,6 +27,7 @@ export namespace ContainerModel {
     environment: t.Optional(t.Record(t.String(), t.String())),
     labels: t.Optional(t.Record(t.String(), t.String())),
     ports: t.Optional(t.Record(t.String(), t.String())),  // HostPort:ContainerPort
+    traefik: t.Optional(traefikLabelsBody)
   })
   export type createContainerBody = typeof createContainerBody.static
 

@@ -72,7 +72,7 @@ export const container = new Elysia({ prefix: '/container' })
       id: t.String()
     }),
     query: t.Object({
-      force: t.Boolean({ default: false })
+      force: t.Optional(t.Boolean({ default: false }))
     }),
     response: {
       200: ContainerModel.responseId,
