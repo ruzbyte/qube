@@ -1,5 +1,5 @@
 {
-  "name": "my-stack-monorepo",
+  "name": "qube-monorepo",
   "private": true,
   "workspaces": [
     "apps/*",
