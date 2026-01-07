@@ -1,14 +1,19 @@
 import { status } from "elysia";
 import type { ContainerModel } from "../container/model";
 import type { MinecraftModel } from "./model";
+import { PortUtils } from "../../utils/ports";
 
 export class MinecraftService {
 
-  static buildMinecraftParams(config: MinecraftModel.createBody): ContainerModel.createContainerBody {
+  static async buildMinecraftParams(config: MinecraftModel.createBody): Promise<ContainerModel.createContainerBody> {
+    const gamePort = "25565"
 
     const ports: Record<string, string> = {}
     if (config.port) {
-      ports[config.port] = "25565"
+      ports[config.port] = gamePort
+    } else {
+      const nextFreePort = await PortUtils.getPortOrNextFree(gamePort)
+      ports[nextFreePort] = gamePort
     }
     const env: Record<string, string> = {
       "EULA": "TRUE",
@@ -17,11 +22,11 @@ export class MinecraftService {
       "TYPE": config.type,
       "MOTD": config.motd || "Minecraft Server deployes by QUBE",
       "DIFFICULTY": config.difficulty || "normal",
-      "SERVER_NAME": config.name
+      "SERVER_NAME": config.name,
+      "ONLINE_MODE": config.onlineMode || 'false'
     }
     if (config.seed) env["SEED"] = config.seed
     if (config.maxPlayers) env["MAX_PLAYERS"] = config.maxPlayers
-    if (config.onlineMode) env["ONLINE_MODE"] = config.onlineMode
     if (config.whitelist) {
       env["ENABLE_WHITELIST"] = "true"
       env["WHITELIST"] = config.whitelist
@@ -51,6 +56,7 @@ export class MinecraftService {
       persistentDataPath: "/data",
       ports: ports,
       environment: env,
+      startAfterCreation: config.startAfterCreation || false,
     }
 
     return dict

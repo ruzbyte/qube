@@ -8,7 +8,7 @@ export const minecraft = new Elysia({ prefix: '/minecraft' })
   .post(
     '/new',
     async ({ body }) => {
-      const containerParams = MinecraftService.buildMinecraftParams(body)
+      const containerParams = await MinecraftService.buildMinecraftParams(body)
       return ContainerService.createContainer(containerParams)
     }, {
     body: MinecraftModel.createBody,

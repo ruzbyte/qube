@@ -12,6 +12,7 @@ export namespace ContainerModel {
       t.Literal("qube.server.game"),
       t.Literal("qube.server.name"),
       t.Literal("qube.server.domain"),
+      t.Literal("qube.port.test"),
     ]), t.String()
   ))
   export type qubeLabels = typeof qubeLabels.static
@@ -40,6 +41,7 @@ export namespace ContainerModel {
     environment: t.Optional(t.Record(t.String(), t.String())),
     labels: t.Optional(t.Record(t.String(), t.String())),
     ports: t.Optional(t.Record(t.String(), t.String())),  // HostPort:ContainerPort
+    traefikPort: t.Optional(t.String()),
     startAfterCreation: t.Optional(t.Boolean({ default: false }))
   })
   export type createContainerBody = typeof createContainerBody.static

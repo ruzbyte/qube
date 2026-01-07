@@ -3,24 +3,25 @@ import { t } from 'elysia'
 export namespace MinecraftModel {
 
   export const createBody = t.Object({
-    name: t.String(),
-    timezone: t.String({ default: 'UTC' }),
-    maxMemory: t.String(),
+    name: t.String({ default: "Minecraft Server" }),
+    startAfterCreation: t.Optional(t.Boolean({ default: false })),
+    timezone: t.String({ default: 'Europe/Berlin' }),
+    maxMemory: t.String({ default: '4G' }),
     type: t.Union([
       t.Literal("VANILLA"),
       // t.Literal("BEDROCK"),
       t.Literal("AUTOCURSEFORGE"),
       // t.Literal("FABRIC"),
       // t.Literal("NEOFORGE"),
-    ]),
-    motd: t.Optional(t.String()),
+    ], { default: "VANILLA" }),
+    motd: t.Optional(t.String({ default: "Minecraft Server deployes by QUBE" })),
     difficulty: t.Optional(t.Union([
       t.Literal("peaceful"),
       t.Literal("easy"),
       t.Literal("normal"),
       t.Literal("hard"),
-    ])),
-    version: t.Optional(t.String()),
+    ], { default: "normal" })),
+    version: t.Optional(t.String({ default: "latest" })),
     maxPlayers: t.Optional(t.String({ default: '20' })),
     onlineMode: t.Optional(t.Union([t.Literal("true"), t.Literal("false")])),
     whitelist: t.Optional(t.String()),

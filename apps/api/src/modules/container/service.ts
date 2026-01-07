@@ -6,7 +6,8 @@ import { randomId } from 'elysia/utils';
 import { status } from 'elysia';
 import { buildTraefikLabels } from '../../utils/traefik';
 
-var docker = new Docker({ socketPath: '/var/run/docker.sock' });
+export const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+
 
 class NetworkService {
   static async getNetworks() {
@@ -138,8 +139,8 @@ export class ContainerService {
       'qube.server.game': params.game,
       'qube.server.name': params.name,
     }
-
-
+    const domainLabel = process.env.DOMAIN || null
+    if (domainLabel) labels["qube.server.domain"] = domainLabel
 
     labels = { ...labels, ...params.labels }
     const enviromentDict = params.environment || {}
@@ -154,15 +155,20 @@ export class ContainerService {
       portBindings[`${portsDict[port]}`] = [{ HostPort: port }]
     }
 
+
     if (process.env.TRAEFIK_ENABLED === "true") {
       if (Object.keys(portsDict).length != 1) {
         console.log("Not possible to enable traefik with multiple or no ports")
       }
-      const traefikLabels = buildTraefikLabels({
-        slug: `${params.game}-${randomContainerId.slice(0, 4)}`,
-        port: `${Object.values(portsDict)[0]}`,
-      })
-      labels = { ...labels, ...traefikLabels }
+      if (params.traefikPort) {
+        const traefikLabels = buildTraefikLabels({
+          slug: `${params.game}-${randomContainerId.slice(0, 4)}`,
+          port: params.traefikPort,
+        })
+        labels = { ...labels, ...traefikLabels }
+      } else {
+        console.log("Not possible to enable traefik without a defined game port or single port mapping")
+      }
     }
 
     let containerConfig: ContainerCreateOptions = {
