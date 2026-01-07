@@ -11,9 +11,9 @@ export const container = new Elysia({ prefix: '/container' })
     }, {
     body: ContainerModel.createContainerBody,
     response: {
-      200: ContainerModel.containerInfo,
-      400: ContainerModel.badRequestResponse,
-      500: ContainerModel.errorResponse,
+      201: ContainerModel.containerInfo,
+      400: ContainerModel.response,
+      500: ContainerModel.response,
     }
   })
   .get(
@@ -26,23 +26,59 @@ export const container = new Elysia({ prefix: '/container' })
     }),
     response: {
       200: ContainerModel.containerInfo,
-      404: ContainerModel.notFoundResponse,
+      404: ContainerModel.response,
+      500: ContainerModel.response,
     }
-  }
-  )
+  })
+  .put(
+    '/:id/start',
+    ({ params }) => {
+      return ContainerService.startContainer(params.id)
+
+    }, {
+    params: t.Object({
+      id: t.String()
+    }),
+    response: {
+      200: ContainerModel.containerInfo,
+      404: ContainerModel.response,
+      500: ContainerModel.response,
+    }
+  })
+  .put(
+    '/:id/stop',
+    ({ params }) => {
+      return ContainerService.stopContainer(params.id)
+
+    }, {
+    params: t.Object({
+      id: t.String()
+    }),
+    response: {
+      200: ContainerModel.containerInfo,
+      404: ContainerModel.response,
+      500: ContainerModel.response,
+    }
+  })
   .delete(
     '/:id',
     ({ params, query }) => {
-
       ContainerService.deleteContainer(params.id, query.force)
-
+      return {
+        id: params.id
+      }
     }, {
     params: t.Object({
       id: t.String()
     }),
     query: t.Object({
       force: t.Boolean({ default: false })
-    })
+    }),
+    response: {
+      200: ContainerModel.responseId,
+      404: ContainerModel.response,
+      500: ContainerModel.response,
+    }
   },
   )
   .get(
@@ -55,7 +91,7 @@ export const container = new Elysia({ prefix: '/container' })
     }),
     response: {
       200: t.Array(ContainerModel.containerInfo),
-      500: ContainerModel.errorResponse,
+      500: ContainerModel.response,
     }
   }
   )

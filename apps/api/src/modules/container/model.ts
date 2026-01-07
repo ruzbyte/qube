@@ -29,23 +29,11 @@ export namespace ContainerModel {
   })
   export type createContainerBody = typeof createContainerBody.static
 
-  export const createResponse = t.Object({
+  export const response = t.String()
+  export type response = typeof response.static
+
+  export const responseId = t.Object({
     id: t.String()
   })
-  export type createResponse = typeof createResponse.static
-
-  export const badRequestResponse = t.Object({
-
-  })
-  export type badRequestResponse = typeof badRequestResponse.static
-
-  export const errorResponse = t.Object({
-
-  })
-  export type errorResponse = typeof errorResponse.static
-
-  export const notFoundResponse = t.Object({
-
-  })
-  export type notFoundResponse = typeof errorResponse.static
+  export type responseId = typeof responseId.static
 }

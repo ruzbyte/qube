@@ -3,6 +3,7 @@ import type { ContainerCreateOptions } from 'dockerode';
 
 import { ContainerModel } from './model';
 import { randomId } from 'elysia/utils';
+import { status } from 'elysia';
 
 var docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
@@ -47,19 +48,44 @@ class NetworkService {
 
 export class ContainerService {
 
-  static async pullImage(imageName: string) {
-    const image = docker.getImage(imageName)
+  static async verifyDockerConnection() {
     try {
-      await image.inspect()
-    } catch {
-      const stream = await docker.pull(imageName)
-      await new Promise(resolve => docker.modem.followProgress(stream, resolve));
+      const data = await docker.ping()
+      console.log('Docker daemon is reachable.', data);
+    } catch (err) {
+      console.error('Docker daemon is not reachable:', err);
+      throw status(500, `Docker daemon is not reachable {${err}}` satisfies ContainerModel.response)
     }
   }
 
-  static async getContainerInfo(id: string): Promise<ContainerModel.containerInfo> {
+  private static async pullImage(imageName: string) {
+    console.log(`Try to find image: ${imageName}`)
+    const image = docker.getImage(imageName)
+    try {
+      await image.inspect()
+      return
+    } catch {
+      console.log(`Image not found locally. Pulling image: ${imageName}`)
+    }
+
+    try {
+      const stream = await docker.pull(imageName)
+      await new Promise(resolve => docker.modem.followProgress(stream, resolve));
+    } catch (err) {
+      console.error(`Failed to pull image: ${imageName}; ${err}`)
+      throw status(404, `Failed to pull image: ${imageName}; ${err}` satisfies ContainerModel.response)
+    }
+  }
+
+  private static async getContainerInfo(id: string): Promise<ContainerModel.containerInfo> {
     const c = docker.getContainer(id)
-    const cInfo = await c.inspect()
+    let cInfo = null
+    try {
+      cInfo = await c.inspect()
+    } catch (err) {
+      console.error(`Container with ID ${id} not found.`)
+      throw status(404, `Container with ID ${id} not found.` satisfies ContainerModel.response)
+    }
     const image = docker.getImage(cInfo.Image)
     const imageInfo = await image.inspect()
 
@@ -81,7 +107,11 @@ export class ContainerService {
       enviromentDict[parts[0]!] = parts[1] || ''
     }
 
-    const filteredLabels = Object.entries(cInfo.Config.Labels).filter(([key, _]) => key.startsWith('qube.')).reduce((obj, [key, value]) => { obj[key] = value; return obj }, {} as { [key: string]: string })
+    const filteredLabels = Object.entries(cInfo.Config.Labels)
+      .filter(([key, _]) => key.startsWith('qube.'))
+      .reduce(
+        (obj, [key, value]) => { obj[key] = value; return obj },
+        {} as { [key: string]: string })
 
     const containerInfo: ContainerModel.containerInfo = {
       name: cInfo.Config.Labels['qube.server.name'] || cInfo.Name,
@@ -97,11 +127,11 @@ export class ContainerService {
       startedAt: cInfo.State.StartedAt,
       status: cInfo.State.Status,
     }
-    console.log(containerInfo)
     return containerInfo
   }
 
   static async createContainer(params: ContainerModel.createContainerBody): Promise<ContainerModel.containerInfo> {
+    await this.verifyDockerConnection()
     const randomContainerId = randomId()
     let labels: { [key: string]: string } = {
       'qube.server': params.game,
@@ -134,6 +164,7 @@ export class ContainerService {
       },
     }
 
+    console.info(`Creating container with config: ${JSON.stringify(containerConfig, null, 2)}`)
     await this.pullImage(params.image)
 
     const container = await docker.createContainer(containerConfig)
@@ -144,15 +175,52 @@ export class ContainerService {
   }
 
   static async getContainer(containerId: string) {
+    await this.verifyDockerConnection()
+    console.info(`Getting container info for ID: ${containerId}`)
+    return this.getContainerInfo(containerId)
+  }
+
+  static async startContainer(containerId: string) {
+    await this.verifyDockerConnection()
+    console.info(`Starting container with ID: ${containerId}`)
     const container = docker.getContainer(containerId)
+    try {
+      await container.start()
+    } catch (err) {
+      console.error(`Failed to start container with ID: ${containerId}; ${err}`)
+      throw status(404, `Failed to start container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
+    }
+    return this.getContainerInfo(container.id)
+  }
+
+  static async stopContainer(containerId: string) {
+    await this.verifyDockerConnection()
+    console.info(`Stopping container with ID: ${containerId}`)
+    const container = docker.getContainer(containerId)
+    try {
+      await container.stop()
+    } catch (err) {
+      console.error(`Failed to stop container with ID: ${containerId}; ${err}`)
+      throw status(404, `Failed to stop container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
+    }
     return this.getContainerInfo(container.id)
   }
 
   static async deleteContainer(containerId: string, force: boolean = false) {
-    await docker.getContainer(containerId).remove({ force: force })
+    await this.verifyDockerConnection()
+    console.info(`Deleting container with ID: ${containerId}, force: ${force}`)
+    const container = docker.getContainer(containerId)
+    try {
+      await container.remove({ force: force })
+    } catch (err) {
+      console.error(`Failed to delete container with ID: ${containerId}; ${err}`)
+      throw status(404, `Failed to delete container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
+    }
   }
 
   static async listContainers(all: boolean = true): Promise<ContainerModel.containerInfo[]> {
+    await this.verifyDockerConnection()
+    console.info(`Listing containers, all: ${all}`)
     const containers = await docker.listContainers({
       all,
       filters: {
