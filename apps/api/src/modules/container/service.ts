@@ -80,9 +80,16 @@ export class ContainerService {
   }
 
   private static async ensureContainerIsManaged(containerId: string) {
-    const managedContainers = await this.listContainers(true)
-    const managed = (managedContainers && managedContainers.find(c => c.id === containerId))
-    if (!managed) {
+    const container = docker.getContainer(containerId)
+    let cInfo: Docker.ContainerInspectInfo
+    try {
+      cInfo = await container.inspect()
+    } catch {
+      // Preserve existing behavior: treat non-existent containers as "not managed"
+      throw status(404, `Container with ID ${containerId} not found.` satisfies ContainerModel.response)
+    }
+    const labels = cInfo.Config && cInfo.Config.Labels ? cInfo.Config.Labels : {}
+    if (!labels['qube.server']) {
       throw status(403, `Container with ID ${containerId} is not managed by Qube.` satisfies ContainerModel.response)
     }
   }
@@ -300,23 +307,22 @@ export class ContainerService {
     await this.verifyDockerConnection()
     await this.ensureContainerIsManaged(containerId)
     console.info(`Executing command in container with ID: ${containerId}, cmd: ${dockerCmd.join(' ')}`)
-    const containers = docker.getContainer(containerId)
+    const container = docker.getContainer(containerId)
     try {
-      const execInstance = await containers.exec({
+      const execInstance = await container.exec({
         Cmd: dockerCmd,
         AttachStdout: true,
         AttachStderr: true,
       })
-      const output = await execInstance.start({
+      const outputStream = await execInstance.start({
         Detach: false
       })
-      const outputs = await output.toArray()
-      console.log(outputs)
-      const outputStr = outputs.map(o => o.toString('utf-8')).join('')
-      console.log(outputStr)
+      const output = await outputStream.toArray()
+      const outputStr = output.map(o => o.toString('utf-8')).join('')
+      console.debug(outputStr)
       return { output: outputStr }
     } catch (err) {
-      console.log("Failed to exec command in container:", err)
+      console.error("Failed to exec command in container:", err)
       throw status(404, `Failed to exec command in container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
     }
   }

@@ -114,7 +114,7 @@ export const container = new Elysia({ prefix: "/container" })
         500: ContainerModel.response,
       },
     }
-  ).put(
+  ).post(
     "/:id/exec",
     ({ body, params }) => {
       return ContainerService.execInContainer(params.id, body.cmd)
