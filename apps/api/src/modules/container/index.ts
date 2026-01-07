@@ -71,19 +71,21 @@ export const container = new Elysia({ prefix: "/container" })
     ({ params, query }) => {
       ContainerService.deleteContainer(params.id, query.force);
       return {
-        id: params.id
-      }
-    }, {
-    params: t.Object({
-      id: t.String()
-    }),
-    query: t.Object({
-      force: t.Optional(t.Boolean({ default: false }))
-    }),
-    response: {
-      200: ContainerModel.responseId,
-      404: ContainerModel.response,
-      500: ContainerModel.response,
+        id: params.id,
+      };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      query: t.Object({
+        force: t.Optional(t.Boolean({ default: false })),
+      }),
+      response: {
+        200: ContainerModel.responseId,
+        404: ContainerModel.response,
+        500: ContainerModel.response,
+      },
     }
   )
   .get(
