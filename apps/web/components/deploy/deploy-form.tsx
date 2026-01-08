@@ -24,6 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Modpack } from "@/types/modpack";
+import { minecraftApi } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -33,13 +34,14 @@ import {
 } from "../ui/card";
 import { IconCpu, IconServer } from "@tabler/icons-react";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
 
 const deploySchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters").max(32),
   port: z.number().min(1024).max(65535),
   difficulty: z
-    .enum(["PEACEFUL", "EASY", "NORMAL", "HARD"])
-    .default("NORMAL")
+    .enum(["peaceful", "easy", "normal", "hard"])
+    .default("normal")
     .optional(),
   type: z.enum(["VANILLA", "BEDROCK", "AUTOCURSEFORGE"]),
   memory: z.number().min(1).max(32), // In GB
@@ -48,6 +50,7 @@ const deploySchema = z.object({
   }),
   whitelist: z.string().optional(),
   version: z.string().optional(),
+  maxPlayers: z.number().min(1).max(100).optional(),
 });
 
 type DeployFormValues = z.infer<typeof deploySchema>;
@@ -55,6 +58,22 @@ type DeployFormValues = z.infer<typeof deploySchema>;
 interface DeployFormProps {
   slug: string;
   modpack?: Modpack;
+}
+
+interface RequestType {
+  port?: string | undefined;
+  difficulty?: "peaceful" | "easy" | "normal" | "hard" | undefined;
+  whitelist?: string | undefined;
+  version?: string | undefined;
+  motd?: string | undefined;
+  maxPlayers?: string | undefined;
+  onlineMode?: "true" | "false" | undefined;
+  seed?: string | undefined;
+  cfSlug?: string | undefined;
+  type: "VANILLA" | "AUTOCURSEFORGE";
+  name: string;
+  timezone: string;
+  maxMemory: string;
 }
 
 export function DeployForm({ slug, modpack }: DeployFormProps) {
@@ -73,7 +92,8 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
     eula: false,
     whitelist: "",
     version: "latest",
-    difficulty: "NORMAL",
+    difficulty: "normal",
+    maxPlayers: 10,
   };
 
   const form = useForm<DeployFormValues>({
@@ -81,9 +101,26 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
     defaultValues,
   });
 
-  function onSubmit(data: DeployFormValues) {
+  async function onSubmit(data: DeployFormValues) {
     console.log("Deploying...", data);
-    // TODO: Call server action
+    if (data.type === "BEDROCK") return;
+
+    const requestBody: RequestType = {
+      name: data.name,
+      type: data.type,
+      timezone: "Europe/Berlin",
+      maxPlayers: data.maxPlayers?.toString(),
+      maxMemory: data.memory.toString() + "G",
+      port: data.port?.toString(),
+      difficulty: data.difficulty,
+      whitelist: data.whitelist,
+      version: data.version,
+      cfSlug: isModpack && modpack ? modpack.slug : undefined,
+    };
+
+    const response = await minecraftApi.new.post(requestBody);
+    console.log("Response:", response);
+    // toast(response.error ? response.error : "Server deployed successfully!");
   }
 
   return (
@@ -220,14 +257,35 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="PEACEFUL">Peaceful</SelectItem>
-                      <SelectItem value="EASY">Easy</SelectItem>
-                      <SelectItem value="NORMAL">Normal</SelectItem>
-                      <SelectItem value="HARD">Hard</SelectItem>
+                      <SelectItem value="peaceful">Peaceful</SelectItem>
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
                     The game difficulty for the server.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="maxPlayers"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Players</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Maximum number of players allowed on the server.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

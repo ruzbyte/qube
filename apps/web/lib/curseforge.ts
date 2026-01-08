@@ -3,11 +3,7 @@
 import { Featured, Modpack } from "@/types/modpack";
 import { Curseforge } from "node-curseforge";
 
-const apiKey = process.env.CF_API_KEY || "";
-
 const baseUrl = "https://api.curseforge.com";
-
-const curseforge = new Curseforge(apiKey);
 
 type ModpackDefinition = {
   name: string;
@@ -25,19 +21,24 @@ const supportedModpacks: ModpackDefinition[] = [
   },
 ];
 
-const requestHeaders: HeadersInit = new Headers();
-requestHeaders.set("Accept", "application/json");
-requestHeaders.set("x-api-key", apiKey);
-requestHeaders.set("Content-Type", "application/json");
+const getHeaders = () => {
+  const apiKey = process.env.CF_API_KEY || "";
+
+  console.log("KEY", process.env.CF_API_KEY);
+  if (!apiKey) console.warn("Missing CF_API_KEY!");
+
+  return {
+    Accept: "application/json",
+    "x-api-key": apiKey,
+    "Content-Type": "application/json",
+  };
+};
 
 export const getGames = async () => {
-  console.log(requestHeaders.get("x-api-key"));
   const request = await fetch(`${baseUrl}/v1/games`, {
-    headers: requestHeaders,
+    headers: getHeaders(),
     method: "GET",
   });
-
-  //console.log(request);
 
   console.log(await request.json());
 };
@@ -45,11 +46,10 @@ export const getGames = async () => {
 export const getMods = async () => {
   const modpacks: Modpack[] = [];
 
-  console.log(apiKey);
   for (let mod in supportedModpacks) {
     const req = await fetch(baseUrl + "/v1/mods/" + supportedModpacks[mod].id, {
       method: "GET",
-      headers: requestHeaders,
+      headers: getHeaders(),
     });
     const data = (await req.json()).data as Modpack;
     console.log(data);
@@ -60,10 +60,11 @@ export const getMods = async () => {
 };
 
 export const getFeaturedModpacks = async (game: string = "minecraft") => {
+  const curseforge = new Curseforge(process.env.CF_API_KEY || "");
   const game_obj = await curseforge.get_game(game);
   const req = await fetch(baseUrl + "/v1/mods/featured", {
     method: "POST",
-    headers: requestHeaders,
+    headers: getHeaders(),
     body: JSON.stringify({
       gameId: game_obj.id,
       excludedModIds: [],
@@ -82,6 +83,7 @@ export const searchModpacks = async (
   query: string,
   game: string = "minecraft"
 ) => {
+  const curseforge = new Curseforge(process.env.CF_API_KEY || "");
   const game_obj = await curseforge.get_game(game);
   console.log(`Searching for: ${query}`);
   let queryParams = {
@@ -94,7 +96,7 @@ export const searchModpacks = async (
     baseUrl + "/v1/mods/search?" + new URLSearchParams(queryParams),
     {
       method: "GET",
-      headers: requestHeaders,
+      headers: getHeaders(),
     }
   );
   const result = await req.json();
@@ -108,6 +110,7 @@ export const getModpackBySlug = async (
   slug: string,
   game: string = "minecraft"
 ) => {
+  const curseforge = new Curseforge(process.env.CF_API_KEY || "");
   const game_obj = await curseforge.get_game(game);
   let queryParams = {
     gameId: game_obj.id.toString(),
@@ -117,7 +120,7 @@ export const getModpackBySlug = async (
     baseUrl + "/v1/mods/search?" + new URLSearchParams(queryParams),
     {
       method: "GET",
-      headers: requestHeaders,
+      headers: getHeaders(),
     }
   );
   const result = await req.json();
@@ -130,7 +133,7 @@ export const getModpackBySlug = async (
 export const getModpack = async (modId: number) => {
   const req = await fetch(`${baseUrl}/v1/mods/${modId}`, {
     method: "GET",
-    headers: requestHeaders,
+    headers: getHeaders(),
   });
   const result = await req.json();
   return result.data as Modpack;

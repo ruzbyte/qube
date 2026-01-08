@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: ./apps/api/Dockerfile
     container_name: qube-api
     ports:
       - "8080:8080"
@@ -16,11 +16,20 @@ services:
       - NODE_ENV=production
       - CF_API_KEY
     restart: always
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/api
+          target: /app/apps/api
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./apps/api/package.json
 
   web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: ./apps/web/Dockerfile.dev
     container_name: qube-web
     ports:
       - "3000:3000"
@@ -30,6 +39,18 @@ services:
     depends_on:
       - api
     restart: always
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/web
+          target: /app/apps/web
+          ignore:
+            - node_modules
+            - .next
+            - dist
+            - .git
+        - action: rebuild
+          path: ./apps/app/web/package.json
 
   traefik:
     image: traefik:v3.6

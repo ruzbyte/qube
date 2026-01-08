@@ -15,19 +15,31 @@ import {
   IconTrashFilled,
 } from "@tabler/icons-react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => {
+      return (
+        <Link
+          href={`/container/${row.original.id}`}
+          className="font-medium text-blue-500 hover:underline"
+        >
+          {row.original.name}
+        </Link>
+      );
+    },
   },
   {
     id: "server",
     header: "Game",
     cell: ({ row }) => {
+      console.log(row.original.labels);
       return (
         <span className="font-medium">
-          {row.original.labels["qube.server"] || "N/A"}
+          {row.original.labels["qube.server.game"] || "N/A"}
         </span>
       );
     },

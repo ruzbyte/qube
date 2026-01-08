@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  output: "standalone",
   images: {
     remotePatterns: [
       {
@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
         hostname: "media.forgecdn.net",
       },
     ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
+  env: {
+    CF_API_KEY: process.env.CF_API_KEY,
   },
 };
 
