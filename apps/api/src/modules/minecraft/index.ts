@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { ContainerService } from "../container/service";
 import { ContainerModel } from "../container/model";
 import { MinecraftModel } from "./model";
@@ -18,17 +18,3 @@ export const minecraft = new Elysia({ prefix: '/minecraft' })
       500: MinecraftModel.response,
     }
   })
-  .get(
-    '/list',
-    ({ query }) => {
-      return ContainerService.listContainers(query.all, "minecraft")
-    }, {
-    query: t.Object({
-      all: t.Boolean({ default: true })
-    }),
-    response: {
-      200: t.Array(ContainerModel.containerInfo),
-      500: MinecraftModel.response,
-    }
-  }
-  )

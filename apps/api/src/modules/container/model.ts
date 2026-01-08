@@ -3,7 +3,8 @@ import { t } from 'elysia'
 export namespace ContainerModel {
 
   export const supportedGames = t.Union([
-    t.Literal("minecraft")
+    t.Literal("minecraft"),
+    t.Literal("scribblers"),
   ])
   export type supportedGames = typeof supportedGames.static
 
@@ -45,7 +46,7 @@ export namespace ContainerModel {
     name: t.String(),
     image: t.String(),
     game: supportedGames,
-    persistentDataPath: t.String(),
+    persistentDataPath: t.Optional(t.String()),
     environment: t.Optional(t.Record(t.String(), t.String())),
     labels: t.Optional(t.Record(t.String(), t.String())),
     ports: t.Optional(t.Record(t.String(), t.String())),  // HostPort:ContainerPort

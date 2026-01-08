@@ -10,6 +10,9 @@ export const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
 
 class NetworkService {
+  static getNetworkName() {
+    return process.env.NETWORK_NAME || "qube-server-network"
+  }
   static async getNetworks() {
     const networks = await docker.listNetworks({
       filters: {
@@ -21,7 +24,7 @@ class NetworkService {
 
   static async createNetwork() {
     const network = await docker.createNetwork({
-      Name: "qube-server-network",
+      Name: this.getNetworkName(),
       Labels: {
         "qube.network": "servers"
       }
@@ -139,7 +142,7 @@ export class ContainerService {
         {} as { [key: string]: string })
 
     const containerInfo: ContainerModel.containerInfo = {
-      name: cInfo.Config.Labels['qube.server.name'] || cInfo.Name,
+      name: cInfo.Name,
       containerName: cInfo.Name.replace('/', ''),
       image: imageInfo.RepoTags ? imageInfo.RepoTags[0]! : cInfo.Image,
       id,
@@ -179,11 +182,11 @@ export class ContainerService {
       portBindings[`${portsDict[port]}`] = [{ HostPort: port }]
     }
 
+    const volumeBinds: string[] = []
+    if (params.persistentDataPath) volumeBinds.push(`/app/server/${randomContainerId}:${params.persistentDataPath}`)
+
 
     if (process.env.TRAEFIK_ENABLED === "true") {
-      if (Object.keys(portsDict).length != 1) {
-        console.log("Not possible to enable traefik with multiple or no ports")
-      }
       if (params.traefikPort) {
         const traefikLabels = buildTraefikLabels({
           slug: `${params.game}-${randomContainerId.slice(0, 4)}`,
@@ -191,20 +194,20 @@ export class ContainerService {
         })
         labels = { ...labels, ...traefikLabels }
       } else {
-        console.log("Not possible to enable traefik without a defined game port or single port mapping")
+        console.info("Not possible to enable traefik without a defined port")
       }
     }
 
+    await NetworkService.ensureNetwork()
     let containerConfig: ContainerCreateOptions = {
       name: `qube-server-${randomContainerId}`,
       Image: params.image,
       Env: env,
       Labels: labels,
       HostConfig: {
-        Binds: [
-          `/app/server/${randomContainerId}:${params.persistentDataPath}`
-        ],
+        Binds: volumeBinds,
         PortBindings: portBindings,
+        NetworkMode: NetworkService.getNetworkName()
       },
     }
 
@@ -212,7 +215,6 @@ export class ContainerService {
     await this.pullImage(params.image)
 
     const container = await docker.createContainer(containerConfig)
-    await NetworkService.connectContainerToNetworks(container.id)
 
     if (params.startOnDeploy) return await this.startContainer(container.id)
 
@@ -283,12 +285,12 @@ export class ContainerService {
     }
   }
 
-  static async listContainers(all: boolean = true, game: ContainerModel.supportedGames | undefined = undefined): Promise<ContainerModel.containerInfo[]> {
+  static async listContainers(game: ContainerModel.supportedGames | undefined = undefined): Promise<ContainerModel.containerInfo[]> {
     await this.verifyDockerConnection()
-    console.info(`Listing containers, all: ${all}`)
+    console.info(`Listing containers`)
     const label = game ? ["qube.server.game=" + game] : ["qube.server"]
     const containers = await docker.listContainers({
-      all,
+      all: true,
       filters: {
         "label": label
       }

@@ -22,4 +22,5 @@ This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) 
 - TRAEFIK_CERTRESOLVER: NAME_OF_ENTRYPOINT (optional)
 - DOMAIN: DOMAIN_OF_QUBE
 - CF_API_KEY: CurseForge
+- NETWORK_NAME: The network to connect game servers (optional)
 ```

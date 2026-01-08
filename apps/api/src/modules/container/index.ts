@@ -154,11 +154,12 @@ export const container = new Elysia({ prefix: "/container" })
   ).get(
     "/list",
     ({ query }) => {
-      return ContainerService.listContainers(query.all);
+      return ContainerService.listContainers(query.game);
     },
     {
       query: t.Object({
-        all: t.Optional(t.Boolean({ default: true })),
+        game: t.Optional(ContainerModel.supportedGames),
+
       }),
       response: {
         200: t.Array(ContainerModel.containerInfo),

@@ -38,6 +38,7 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--providers.docker.exposedbydefault=false"
+#      - "--providers.docker.network=qube-server-network"
     ports:
       - "80:80"
     volumes:
