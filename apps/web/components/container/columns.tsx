@@ -39,7 +39,7 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
     id: "serverid",
     header: "Server ID",
     cell: ({ row }) => {
-      return <span className="font-mono">{row.original.name || "N/A"}</span>;
+      return <span className="font-mono">{row.original.containerName || "N/A"}</span>;
     },
   },
   {

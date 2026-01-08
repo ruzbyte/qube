@@ -142,7 +142,7 @@ export class ContainerService {
         {} as { [key: string]: string })
 
     const containerInfo: ContainerModel.containerInfo = {
-      name: cInfo.Name,
+      name: cInfo.Config.Labels['qube.server.name'] || cInfo.Name.replace('/', ''),
       containerName: cInfo.Name.replace('/', ''),
       image: imageInfo.RepoTags ? imageInfo.RepoTags[0]! : cInfo.Image,
       id,

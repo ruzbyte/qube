@@ -9,7 +9,7 @@ import { containerApi } from "@/lib/api";
 
 export default async function Page() {
   const { data: containers, error } = await containerApi.list.get({
-    query: { all: true },
+    query: {},
   });
 
   if (error) {
