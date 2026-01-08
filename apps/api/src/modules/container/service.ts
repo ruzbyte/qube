@@ -241,13 +241,28 @@ export class ContainerService {
     return this.getContainerInfo(container.id)
   }
 
-  static async stopContainer(containerId: string) {
+  static async restartContainer(containerId: string) {
     await this.verifyDockerConnection()
     await this.ensureContainerIsManaged(containerId)
-    console.info(`Stopping container with ID: ${containerId}`)
+    console.info(`Restarting container with ID: ${containerId}`)
     const container = docker.getContainer(containerId)
     try {
-      await container.stop()
+      await container.restart()
+    } catch (err) {
+      console.error(`Failed to restart container with ID: ${containerId}; ${err}`)
+      throw status(404, `Failed to restart container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)
+    }
+    return this.getContainerInfo(container.id)
+  }
+
+  static async stopContainer(containerId: string, force: boolean = false) {
+    await this.verifyDockerConnection()
+    await this.ensureContainerIsManaged(containerId)
+    console.info(`${force ? "Forcefully stopping" : "Stopping"} container with ID: ${containerId}`)
+    const container = docker.getContainer(containerId)
+    try {
+      if (force) await container.kill()
+      else await container.stop()
     } catch (err) {
       console.error(`Failed to stop container with ID: ${containerId}; ${err}`)
       throw status(404, `Failed to stop container with ID: ${containerId}; ${err}` satisfies ContainerModel.response)

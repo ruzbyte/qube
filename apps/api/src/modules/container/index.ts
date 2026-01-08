@@ -51,13 +51,32 @@ export const container = new Elysia({ prefix: "/container" })
     }
   )
   .put(
-    "/:id/stop",
+    "/:id/restart",
     ({ params }) => {
-      return ContainerService.stopContainer(params.id);
+      return ContainerService.restartContainer(params.id);
     },
     {
       params: t.Object({
         id: t.String(),
+      }),
+      response: {
+        200: ContainerModel.containerInfo,
+        404: ContainerModel.response,
+        500: ContainerModel.response,
+      },
+    }
+  )
+  .put(
+    "/:id/stop",
+    ({ params, query }) => {
+      return ContainerService.stopContainer(params.id, query.force);
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      query: t.Object({
+        force: t.Optional(t.Boolean({ default: false })),
       }),
       response: {
         200: ContainerModel.containerInfo,
