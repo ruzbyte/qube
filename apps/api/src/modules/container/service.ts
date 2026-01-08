@@ -127,6 +127,7 @@ export class ContainerService {
       }
       if (ContainerModel.secretEnvVars.includes(parts[0]!)) {
         console.debug(`Skipping secret environment variable: ${parts[0]}`)
+        continue
       }
       enviromentDict[parts[0]!] = parts[1]!
     }
