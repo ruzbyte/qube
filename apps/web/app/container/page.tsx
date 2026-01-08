@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { ContainerList } from "@/components/container/container-list";
 import Navbar from "@/components/navigation/navbar";
 import {
@@ -8,9 +10,7 @@ import {
 import { containerApi } from "@/lib/api";
 
 export default async function Page() {
-  const { data: containers, error } = await containerApi.list.get({
-    query: {},
-  });
+  const { data: containers, error } = await containerApi.list.get();
 
   if (error) {
     console.error("Error loading containers:", error);
@@ -20,7 +20,11 @@ export default async function Page() {
     <main className="relative flex min-h-screen flex-col">
       <Navbar />
       <div className="flex-1 container mx-auto px-4 py-8">
-        {error && <p>Error loading containers</p>}
+        {error && (
+          <div className="bg-destructive/15 text-destructive p-4 rounded-md">
+            Error loading container: <pre>{JSON.stringify(error, null, 2)}</pre>
+          </div>
+        )}
         {containers && <ContainerList containers={containers} />}
       </div>
     </main>

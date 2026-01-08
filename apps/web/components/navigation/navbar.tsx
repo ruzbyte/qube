@@ -25,11 +25,6 @@ export default function Navbar() {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/dashboard">Dashboard</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
                   <Link href="/browse">Browse</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -45,7 +40,7 @@ export default function Navbar() {
         <div className="flex flex-1 items-center justify-end space-x-2">
           <nav className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">Login</Link>
+              Login
             </Button>
             <ModeToggle />
           </nav>

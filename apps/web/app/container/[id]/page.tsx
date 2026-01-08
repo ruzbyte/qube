@@ -9,6 +9,8 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
 
+  setTimeout(() => {}, 2000);
+
   const { data: container, error } = await containerApi({
     id,
   }).get();
@@ -23,7 +25,8 @@ export default async function Page({ params }: PageProps) {
       <div className="flex-1 container mx-auto px-4 py-8">
         {error && (
           <div className="bg-destructive/15 text-destructive p-4 rounded-md">
-            Error loading container: {JSON.stringify(error)}
+            Error loading container:{" "}
+            <pre> {JSON.stringify(error, null, 2)} </pre>
           </div>
         )}
         {container && <ContainerInspectView container={container} />}

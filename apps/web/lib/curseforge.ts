@@ -24,7 +24,6 @@ const supportedModpacks: ModpackDefinition[] = [
 const getHeaders = () => {
   const apiKey = process.env.CF_API_KEY || "";
 
-  console.log("KEY", process.env.CF_API_KEY);
   if (!apiKey) console.warn("Missing CF_API_KEY!");
 
   return {
@@ -39,8 +38,6 @@ export const getGames = async () => {
     headers: getHeaders(),
     method: "GET",
   });
-
-  console.log(await request.json());
 };
 
 export const getMods = async () => {
@@ -52,7 +49,6 @@ export const getMods = async () => {
       headers: getHeaders(),
     });
     const data = (await req.json()).data as Modpack;
-    console.log(data);
     modpacks.push(data);
   }
 
@@ -70,11 +66,7 @@ export const getFeaturedModpacks = async (game: string = "minecraft") => {
       excludedModIds: [],
     }),
   });
-  console.log(game_obj);
-  console.log("FEATURED");
   const result = await req.json();
-
-  console.log(result.data.featured);
 
   return result.data as Featured;
 };
@@ -85,7 +77,6 @@ export const searchModpacks = async (
 ) => {
   const curseforge = new Curseforge(process.env.CF_API_KEY || "");
   const game_obj = await curseforge.get_game(game);
-  console.log(`Searching for: ${query}`);
   let queryParams = {
     gameId: game_obj.id.toString(),
     searchFilter: query,
@@ -100,8 +91,6 @@ export const searchModpacks = async (
     }
   );
   const result = await req.json();
-
-  console.log(result.data);
 
   return result.data as Modpack[];
 };
@@ -124,8 +113,6 @@ export const getModpackBySlug = async (
     }
   );
   const result = await req.json();
-
-  console.log(result.data[0]);
 
   return result.data[0] as Modpack;
 };

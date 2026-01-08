@@ -46,7 +46,6 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
     id: "Game",
     header: "Game",
     cell: ({ row }) => {
-      console.log(row.original.labels);
       return (
         <span className="font-medium">
           {row.original.labels["qube.server.game"] || "N/A"}

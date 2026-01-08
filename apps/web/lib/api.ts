@@ -6,6 +6,8 @@ import { app } from "api/src/index";
 
 const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
+console.log("API URL:", url);
+
 export const containerApi = treaty<typeof app>(url).container;
 export const minecraftApi = treaty<typeof app>(url).minecraft;
 
