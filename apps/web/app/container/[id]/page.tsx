@@ -1,6 +1,6 @@
-import { containerApi } from "@/lib/api";
-import { ContainerInspectView } from "@/components/container/inspect/container-inspect-view";
-import Navbar from "@/components/navigation/navbar";
+import { containerApi } from '@/lib/api';
+import { ContainerInspectView } from '@/components/container/inspect/container-inspect-view';
+import Navbar from '@/components/navigation/navbar';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,7 +16,7 @@ export default async function Page({ params }: PageProps) {
   }).get();
 
   if (error) {
-    console.error("Error loading container:", error);
+    console.error('Error loading container:', error);
   }
 
   return (
@@ -25,8 +25,7 @@ export default async function Page({ params }: PageProps) {
       <div className="flex-1 container mx-auto px-4 py-8">
         {error && (
           <div className="bg-destructive/15 text-destructive p-4 rounded-md">
-            Error loading container:{" "}
-            <pre> {JSON.stringify(error, null, 2)} </pre>
+            Error loading container: <pre> {JSON.stringify(error, null, 2)} </pre>
           </div>
         )}
         {container && <ContainerInspectView container={container} />}

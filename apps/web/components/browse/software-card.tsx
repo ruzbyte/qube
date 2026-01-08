@@ -1,12 +1,7 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import Link from "next/link";
-import React from "react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import Link from 'next/link';
+import React from 'react';
 
 interface SoftwareCardProps {
   title: string;
@@ -15,12 +10,7 @@ interface SoftwareCardProps {
   href: string;
 }
 
-export function SoftwareCard({
-  title,
-  description,
-  icon: Icon,
-  href,
-}: SoftwareCardProps) {
+export function SoftwareCard({ title, description, icon: Icon, href }: SoftwareCardProps) {
   return (
     <Card className="flex flex-col h-full hover:shadow-lg transition-shadow border-primary/20">
       <CardHeader className="flex flex-row items-center gap-4 pb-2">

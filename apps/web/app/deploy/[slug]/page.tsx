@@ -1,19 +1,15 @@
-import { DeployForm } from "@/components/deploy/deploy-form";
-import Navbar from "@/components/navigation/navbar";
-import { getModpack, getModpackBySlug } from "@/lib/curseforge";
-import { IconCube, IconDeviceGamepad } from "@tabler/icons-react";
-import Image from "next/image";
+import { DeployForm } from '@/components/deploy/deploy-form';
+import Navbar from '@/components/navigation/navbar';
+import { getModpack, getModpackBySlug } from '@/lib/curseforge';
+import { IconCube, IconDeviceGamepad } from '@tabler/icons-react';
+import Image from 'next/image';
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   let modpack = null;
-  const isVanilla = slug === "vanilla";
-  const isBedrock = slug === "bedrock";
+  const isVanilla = slug === 'vanilla';
+  const isBedrock = slug === 'bedrock';
   const isModpack = !isVanilla && !isBedrock;
 
   if (isModpack) {
@@ -30,12 +26,8 @@ export default async function Page({
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="flex flex-col gap-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">
-              Deploy New Server
-            </h1>
-            <p className="text-muted-foreground">
-              Configure your server settings below.
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Deploy New Server</h1>
+            <p className="text-muted-foreground">Configure your server settings below.</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -46,7 +38,7 @@ export default async function Page({
                   <>
                     <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-md">
                       <Image
-                        src={modpack.logo?.thumbnailUrl || ""}
+                        src={modpack.logo?.thumbnailUrl || ''}
                         alt={modpack.name}
                         fill
                         className="object-cover"
@@ -54,9 +46,7 @@ export default async function Page({
                     </div>
                     <div>
                       <h2 className="text-xl font-bold">{modpack.name}</h2>
-                      <p className="text-sm text-muted-foreground">
-                        {modpack.authors[0]?.name}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{modpack.authors[0]?.name}</p>
                     </div>
                   </>
                 ) : (
@@ -70,11 +60,9 @@ export default async function Page({
                     </div>
                     <div>
                       <h2 className="text-xl font-bold">
-                        {isBedrock ? "Bedrock Edition" : "Java Vanilla"}
+                        {isBedrock ? 'Bedrock Edition' : 'Java Vanilla'}
                       </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Official Minecraft Server
-                      </p>
+                      <p className="text-sm text-muted-foreground">Official Minecraft Server</p>
                     </div>
                   </>
                 )}

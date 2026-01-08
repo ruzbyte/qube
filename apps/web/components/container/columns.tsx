@@ -1,11 +1,11 @@
-import { ContainerCardProps } from "@/types/contaier";
-import { ColumnDef } from "@tanstack/react-table";
+import { ContainerCardProps } from '@/types/contaier';
+import { ColumnDef } from '@tanstack/react-table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from '../ui/dropdown-menu';
 import {
   IconDots,
   IconPlayerPlayFilled,
@@ -13,17 +13,17 @@ import {
   IconPlayerStopFilled,
   IconSearch,
   IconTrashFilled,
-} from "@tabler/icons-react";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import { deleteContainer, startContainer, stopContainer } from "@/lib/api";
-import { useRouter } from "next/navigation";
-import { Badge } from "../ui/badge";
+} from '@tabler/icons-react';
+import { Button } from '../ui/button';
+import Link from 'next/link';
+import { deleteContainer, startContainer, stopContainer } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { Badge } from '../ui/badge';
 
 const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: 'name',
+    header: 'Name',
     cell: ({ row }) => {
       return (
         <Link
@@ -36,33 +36,31 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
     },
   },
   {
-    id: "serverid",
-    header: "Server ID",
+    id: 'serverid',
+    header: 'Server ID',
     cell: ({ row }) => {
-      return <span className="font-mono">{row.original.containerName || "N/A"}</span>;
+      return <span className="font-mono">{row.original.containerName || 'N/A'}</span>;
     },
   },
   {
-    id: "Game",
-    header: "Game",
+    id: 'Game',
+    header: 'Game',
     cell: ({ row }) => {
       return (
-        <span className="font-medium">
-          {row.original.labels["qube.server.game"] || "N/A"}
-        </span>
+        <span className="font-medium">{row.original.labels['qube.server.game'] || 'N/A'}</span>
       );
     },
   },
   {
-    accessorKey: "image",
-    header: "Image",
+    accessorKey: 'image',
+    header: 'Image',
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: 'status',
+    header: 'Status',
     cell: ({ getValue }) => (
       <div>
-        {getValue() === "running" ? (
+        {getValue() === 'running' ? (
           <Badge className="bg-green-500">Running</Badge>
         ) : (
           <Badge className="bg-red-500">Stopped</Badge>
@@ -71,12 +69,12 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
     ),
   },
   {
-    accessorKey: "createdAt",
-    header: "Created At",
+    accessorKey: 'createdAt',
+    header: 'Created At',
     cell: ({ getValue }) => new Date(getValue() as string).toLocaleString(),
   },
   {
-    id: "actions",
+    id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
       const container = row.original;
@@ -90,15 +88,12 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>
-              <Link
-                href={`/container/${container.id}`}
-                className="flex items-center gap-2"
-              >
+              <Link href={`/container/${container.id}`} className="flex items-center gap-2">
                 <IconSearch /> Inspect
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              {container.status === "running" ? (
+              {container.status === 'running' ? (
                 <div
                   onClick={async () => {
                     await stopContainer(container.id);
@@ -123,9 +118,7 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
             <DropdownMenuItem>
               <div
                 className="flex items-center text-red-400 gap-2"
-                onClick={() =>
-                  deleteContainer(container.id).then(() => router.refresh())
-                }
+                onClick={() => deleteContainer(container.id).then(() => router.refresh())}
               >
                 <IconTrashFilled /> Delete
               </div>

@@ -1,19 +1,15 @@
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-import { ContainerList } from "@/components/container/container-list";
-import Navbar from "@/components/navigation/navbar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { containerApi } from "@/lib/api";
+import { ContainerList } from '@/components/container/container-list';
+import Navbar from '@/components/navigation/navbar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { containerApi } from '@/lib/api';
 
 export default async function Page() {
   const { data: containers, error } = await containerApi.list.get();
 
   if (error) {
-    console.error("Error loading containers:", error);
+    console.error('Error loading containers:', error);
   }
 
   return (
@@ -35,14 +31,14 @@ function ContainerStatus(status: string) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        {status == "running" ? (
+        {status == 'running' ? (
           <span className="ml-4 text-green-500">◉</span>
         ) : (
           <span className="ml-4 text-red-500">◉</span>
         )}
       </TooltipTrigger>
       <TooltipContent>
-        {status == "running" ? "Container is running" : "Container is stopped"}
+        {status == 'running' ? 'Container is running' : 'Container is stopped'}
       </TooltipContent>
     </Tooltip>
   );

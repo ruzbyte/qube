@@ -1,4 +1,4 @@
-import { Mod } from "node-curseforge";
+import { Mod } from 'node-curseforge';
 
 export interface Modpack {
   id: number;

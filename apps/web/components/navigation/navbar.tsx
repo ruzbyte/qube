@@ -1,13 +1,13 @@
-import { IconCube } from "@tabler/icons-react";
-import { ModeToggle } from "../core/theme-toggle";
-import Link from "next/link";
-import { Button } from "../ui/button";
+import { IconCube } from '@tabler/icons-react';
+import { ModeToggle } from '../core/theme-toggle';
+import Link from 'next/link';
+import { Button } from '../ui/button';
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-} from "../ui/navigation-menu";
+} from '../ui/navigation-menu';
 
 export default function Navbar() {
   return (

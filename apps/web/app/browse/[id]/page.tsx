@@ -1,23 +1,14 @@
-import Navbar from "@/components/navigation/navbar";
-import { getModpack } from "@/lib/curseforge";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  IconCalendar,
-  IconDownload,
-  IconExternalLink,
-  IconThumbUp,
-} from "@tabler/icons-react";
-import Image from "next/image";
-import Link from "next/link";
+import Navbar from '@/components/navigation/navbar';
+import { getModpack } from '@/lib/curseforge';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { IconCalendar, IconDownload, IconExternalLink, IconThumbUp } from '@tabler/icons-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-export default async function ModpackPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ModpackPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const modpack = await getModpack(parseInt(id));
 
@@ -64,9 +55,7 @@ export default async function ModpackPage({
               <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
                   <IconDownload className="w-4 h-4" />
-                  <span>
-                    {(modpack.downloadCount / 1000000).toFixed(2)}M Downloads
-                  </span>
+                  <span>{(modpack.downloadCount / 1000000).toFixed(2)}M Downloads</span>
                 </div>
                 <div className="flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
                   <IconThumbUp className="w-4 h-4" />
@@ -74,10 +63,7 @@ export default async function ModpackPage({
                 </div>
                 <div className="flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
                   <IconCalendar className="w-4 h-4" />
-                  <span>
-                    Updated{" "}
-                    {new Date(modpack.dateModified).toLocaleDateString()}
-                  </span>
+                  <span>Updated {new Date(modpack.dateModified).toLocaleDateString()}</span>
                 </div>
               </div>
 
@@ -91,10 +77,7 @@ export default async function ModpackPage({
             </div>
 
             <div className="flex flex-col gap-2 w-full md:w-auto shrink-0">
-              <Link
-                href={`/deploy/${modpack.slug}`}
-                className="w-full md:w-auto"
-              >
+              <Link href={`/deploy/${modpack.slug}`} className="w-full md:w-auto">
                 <Button>Deploy</Button>
               </Link>
               <div className="flex gap-2">
@@ -134,9 +117,7 @@ export default async function ModpackPage({
                 <div className="space-y-4">
                   <section>
                     <h3 className="text-lg font-semibold mb-2">About</h3>
-                    <p className="text-muted-foreground whitespace-pre-wrap">
-                      {modpack.summary}
-                    </p>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{modpack.summary}</p>
                   </section>
                   <section>
                     <h3 className="text-lg font-semibold mb-2">Authors</h3>
@@ -195,20 +176,16 @@ export default async function ModpackPage({
                     >
                       <div>
                         <div className="font-medium">{file.displayName}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {file.fileName}
-                        </div>
+                        <div className="text-sm text-muted-foreground">{file.fileName}</div>
                       </div>
                       <div className="flex items-center gap-4 text-sm">
-                        <span>
-                          {new Date(file.fileDate).toLocaleDateString()}
-                        </span>
+                        <span>{new Date(file.fileDate).toLocaleDateString()}</span>
                         <Badge variant="secondary">
                           {file.releaseType === 1
-                            ? "Release"
+                            ? 'Release'
                             : file.releaseType === 2
-                            ? "Beta"
-                            : "Alpha"}
+                              ? 'Beta'
+                              : 'Alpha'}
                         </Badge>
                         <Button size="sm" variant="ghost">
                           Download

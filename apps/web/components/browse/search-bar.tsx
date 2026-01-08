@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { Input } from "@/components/ui/input";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Input } from '@/components/ui/input';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export function ModpackSearch() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [query, setQuery] = useState(searchParams.get('q') || '');
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       const params = new URLSearchParams(searchParams);
       if (query) {
-        params.set("q", query);
+        params.set('q', query);
       } else {
-        params.delete("q");
+        params.delete('q');
       }
       router.push(`${pathname}?${params.toString()}`);
     }, 500);

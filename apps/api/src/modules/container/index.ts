@@ -1,11 +1,11 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t } from 'elysia';
 
-import { ContainerModel } from "./model";
-import { ContainerService } from "./service";
+import { ContainerModel } from './model';
+import { ContainerService } from './service';
 
-export const container = new Elysia({ prefix: "/container" })
+export const container = new Elysia({ prefix: '/container' })
   .post(
-    "/new",
+    '/new',
     async ({ body }) => {
       return ContainerService.createContainer(body);
     },
@@ -19,7 +19,7 @@ export const container = new Elysia({ prefix: "/container" })
     }
   )
   .get(
-    "/:id",
+    '/:id',
     ({ params }) => {
       return ContainerService.getContainer(params.id);
     },
@@ -35,7 +35,7 @@ export const container = new Elysia({ prefix: "/container" })
     }
   )
   .put(
-    "/:id/start",
+    '/:id/start',
     ({ params }) => {
       return ContainerService.startContainer(params.id);
     },
@@ -51,7 +51,7 @@ export const container = new Elysia({ prefix: "/container" })
     }
   )
   .put(
-    "/:id/restart",
+    '/:id/restart',
     ({ params }) => {
       return ContainerService.restartContainer(params.id);
     },
@@ -67,7 +67,7 @@ export const container = new Elysia({ prefix: "/container" })
     }
   )
   .put(
-    "/:id/stop",
+    '/:id/stop',
     ({ params, query }) => {
       return ContainerService.stopContainer(params.id, query.force);
     },
@@ -86,7 +86,7 @@ export const container = new Elysia({ prefix: "/container" })
     }
   )
   .delete(
-    "/:id",
+    '/:id',
     ({ params, query }) => {
       ContainerService.deleteContainer(params.id, query.force);
       return {
@@ -106,17 +106,18 @@ export const container = new Elysia({ prefix: "/container" })
         500: ContainerModel.response,
       },
     }
-  ).get(
-    "/:id/logs",
+  )
+  .get(
+    '/:id/logs',
     ({ params, query }) => {
       const logOptions = {
         stdout: { stdout: true, stderr: false },
         stderr: { stdout: false, stderr: true },
-        both: { stdout: true, stderr: true }
+        both: { stdout: true, stderr: true },
       };
 
       // Fallback auf 'stdout', falls query.type leer oder unbekannt ist
-      const { stdout, stderr } = logOptions[query.type || "stdout"];
+      const { stdout, stderr } = logOptions[query.type || 'stdout'];
       return ContainerService.getLogs(params.id, stdout, stderr, query.tail);
     },
     {
@@ -124,7 +125,11 @@ export const container = new Elysia({ prefix: "/container" })
         id: t.String(),
       }),
       query: t.Object({
-        type: t.Optional(t.Union([t.Literal("stdout"), t.Literal("stderr"), t.Literal("both")], { default: "stdout" })),
+        type: t.Optional(
+          t.Union([t.Literal('stdout'), t.Literal('stderr'), t.Literal('both')], {
+            default: 'stdout',
+          })
+        ),
         tail: t.Optional(t.Number({ default: 50 })),
       }),
       response: {
@@ -133,10 +138,11 @@ export const container = new Elysia({ prefix: "/container" })
         500: ContainerModel.response,
       },
     }
-  ).post(
-    "/:id/exec",
+  )
+  .post(
+    '/:id/exec',
     ({ body, params }) => {
-      return ContainerService.execInContainer(params.id, body.cmd)
+      return ContainerService.execInContainer(params.id, body.cmd);
     },
     {
       params: t.Object({
@@ -151,15 +157,15 @@ export const container = new Elysia({ prefix: "/container" })
         500: ContainerModel.response,
       },
     }
-  ).get(
-    "/list",
+  )
+  .get(
+    '/list',
     ({ query }) => {
       return ContainerService.listContainers(query.game);
     },
     {
       query: t.Object({
         game: t.Optional(ContainerModel.supportedGames),
-
       }),
       response: {
         200: t.Array(ContainerModel.containerInfo),

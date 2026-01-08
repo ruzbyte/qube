@@ -1,6 +1,1 @@
-export type MinecraftServerType =
-  | "VANILLA"
-  | "BEDROCK"
-  | "AUTOCURSEFORGE"
-  | "NEOFORGE"
-  | "FABRIC";
+export type MinecraftServerType = 'VANILLA' | 'BEDROCK' | 'AUTOCURSEFORGE' | 'NEOFORGE' | 'FABRIC';

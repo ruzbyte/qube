@@ -1,5 +1,5 @@
-import Landing from "@/components/landing/landing";
-import Navbar from "@/components/navigation/navbar";
+import Landing from '@/components/landing/landing';
+import Navbar from '@/components/navigation/navbar';
 
 export default function Page() {
   return (

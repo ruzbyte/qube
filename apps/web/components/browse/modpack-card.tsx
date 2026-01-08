@@ -1,15 +1,10 @@
-import { Modpack } from "@/types/modpack.d";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { IconDownload, IconThumbUp } from "@tabler/icons-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Modpack } from '@/types/modpack.d';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { IconDownload, IconThumbUp } from '@tabler/icons-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface ModpackCardProps {
   modpack: Modpack;
@@ -37,15 +32,13 @@ export function ModpackCard({ modpack }: ModpackCardProps) {
           <div>
             <h3 className="font-bold text-lg line-clamp-1">{modpack.name}</h3>
             <p className="text-sm text-muted-foreground line-clamp-1">
-              by {modpack.authors.map((a) => a.name).join(", ")}
+              by {modpack.authors.map((a) => a.name).join(', ')}
             </p>
           </div>
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-1">
-        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-          {modpack.summary}
-        </p>
+        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{modpack.summary}</p>
         <div className="flex flex-wrap gap-2">
           {modpack.categories.slice(0, 3).map((category) => (
             <Badge key={category.id} variant="secondary" className="text-xs">

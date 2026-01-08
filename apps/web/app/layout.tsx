@@ -1,24 +1,24 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Raleway } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/core/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono, Raleway } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/components/core/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
 
-const raleway = Raleway({ subsets: ["latin"], variable: "--font-sans" });
+const raleway = Raleway({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Qube",
-  description: "Quick Unified Block Engnine, game servers made easy",
+  title: 'Qube',
+  description: 'Quick Unified Block Engnine, game servers made easy',
 };
 
 export default function RootLayout({
@@ -28,9 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={raleway.variable}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           <Toaster />

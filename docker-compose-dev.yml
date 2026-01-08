@@ -5,9 +5,9 @@ services:
       dockerfile: ./apps/api/Dockerfile
     container_name: qube-api
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - '/var/run/docker.sock:/var/run/docker.sock'
     #      - "PATH_TO_SERVERFILES:/app/server"
     environment:
       - TRAEFIK_ENABLED=true
@@ -32,7 +32,7 @@ services:
       dockerfile: ./apps/web/Dockerfile.dev
     container_name: qube-web
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NEXT_PUBLIC_API_URL=http://api:8080
       - CF_API_KEY
@@ -55,20 +55,20 @@ services:
   traefik:
     image: traefik:v3.6
     command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--providers.docker.exposedbydefault=false"
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--entrypoints.web.address=:80'
+      - '--providers.docker.exposedbydefault=false'
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - "traefik.enable=true"
+      - 'traefik.enable=true'
       ## HTTP Routers
-      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.qube.letsdrinksometea.de`)"
-      - "traefik.http.routers.traefik-rtr.entrypoints=web" # Defined in traefik.yaml
-      - "traefik.http.routers.traefik-rtr.service=api@internal"
+      - 'traefik.http.routers.traefik-rtr.rule=Host(`traefik.qube.letsdrinksometea.de`)'
+      - 'traefik.http.routers.traefik-rtr.entrypoints=web' # Defined in traefik.yaml
+      - 'traefik.http.routers.traefik-rtr.service=api@internal'
     networks:
       - qube-server-network
 

@@ -1,3 +1,5 @@
+import type { minecraftApi } from '@/lib/api';
+
 export interface ContainerCardProps {
   name: string;
   id: string;
@@ -6,9 +8,9 @@ export interface ContainerCardProps {
     [x: string]: string;
   };
   labels: {
-    "qube.server.game"?: string | undefined;
-    "qube.server.name"?: string | undefined;
-    "qube.server.domain"?: string | undefined;
+    'qube.server.game'?: string | undefined;
+    'qube.server.name'?: string | undefined;
+    'qube.server.domain'?: string | undefined;
   };
   ports: string[];
   containerName: string;
@@ -19,18 +21,4 @@ export interface ContainerCardProps {
   status: string;
 }
 
-interface RequestType {
-  port?: string | undefined;
-  difficulty?: "peaceful" | "easy" | "normal" | "hard" | undefined;
-  whitelist?: string | undefined;
-  version?: string | undefined;
-  motd?: string | undefined;
-  maxPlayers?: string | undefined;
-  onlineMode?: "true" | "false" | undefined;
-  seed?: string | undefined;
-  cfSlug?: string | undefined;
-  type: "VANILLA" | "AUTOCURSEFORGE";
-  name: string;
-  timezone: string;
-  maxMemory: string;
-}
+export type RequestType = Parameters<typeof minecraftApi.new.post>[0];

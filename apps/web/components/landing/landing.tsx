@@ -1,18 +1,7 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  IconCpu,
-  IconCube,
-  IconDeviceGamepad,
-  IconServer,
-} from "@tabler/icons-react";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { IconCpu, IconCube, IconDeviceGamepad, IconServer } from '@tabler/icons-react';
 
 export default function Landing() {
   return (
@@ -26,8 +15,8 @@ export default function Landing() {
                   Qube Server Management
                 </h1>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  Die modernste Plattform für das automatische Management und
-                  Deployment von Minecraft Server Containern.
+                  Die modernste Plattform für das automatische Management und Deployment von
+                  Minecraft Server Containern.
                 </p>
               </div>
               <div className="space-x-4">
@@ -35,10 +24,7 @@ export default function Landing() {
                   <Link href="/dashboard">Jetzt Starten</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <Link
-                    href="https://github.com/craftainer/qube"
-                    target="_blank"
-                  >
+                  <Link href="https://github.com/craftainer/qube" target="_blank">
                     GitHub
                   </Link>
                 </Button>
@@ -57,9 +43,8 @@ export default function Landing() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    Jeder Server läuft isoliert in seinem eigenen Container.
-                    Maximale Sicherheit und Ressourcenkontrolle für deine
-                    Minecraft Welten.
+                    Jeder Server läuft isoliert in seinem eigenen Container. Maximale Sicherheit und
+                    Ressourcenkontrolle für deine Minecraft Welten.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -70,9 +55,8 @@ export default function Landing() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    Erstelle, starte und stoppe Server mit einem Klick.
-                    Automatische Backups und Updates sorgen für einen
-                    reibungslosen Betrieb.
+                    Erstelle, starte und stoppe Server mit einem Klick. Automatische Backups und
+                    Updates sorgen für einen reibungslosen Betrieb.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -83,8 +67,8 @@ export default function Landing() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    Egal ob ein kleiner Survival-Server oder ein großes
-                    Netzwerk. Qube wächst mit deinen Anforderungen.
+                    Egal ob ein kleiner Survival-Server oder ein großes Netzwerk. Qube wächst mit
+                    deinen Anforderungen.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -108,9 +92,8 @@ export default function Landing() {
               </div>
               <div className="flex flex-col items-start space-y-4">
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  Unsere optimierte Architektur sorgt für minimale Latenz und
-                  maximale TPS. Verwalte deine Plugins, Mods und Konfigurationen
-                  direkt über das Webinterface.
+                  Unsere optimierte Architektur sorgt für minimale Latenz und maximale TPS. Verwalte
+                  deine Plugins, Mods und Konfigurationen direkt über das Webinterface.
                 </p>
                 <div className="grid gap-4 min-[400px]:grid-cols-2">
                   <div className="flex items-center gap-2">
@@ -133,16 +116,10 @@ export default function Landing() {
             &copy; 2026 Qube Platform. Alle Rechte vorbehalten.
           </p>
           <nav className="flex gap-4 sm:ml-auto sm:gap-6">
-            <Link
-              className="text-xs hover:underline underline-offset-4"
-              href="#"
-            >
+            <Link className="text-xs hover:underline underline-offset-4" href="#">
               Impressum
             </Link>
-            <Link
-              className="text-xs hover:underline underline-offset-4"
-              href="#"
-            >
+            <Link className="text-xs hover:underline underline-offset-4" href="#">
               Datenschutz
             </Link>
           </nav>

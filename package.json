@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-     "dev": "concurrently -n web,api -c blue,magenta \"bun --filter ./apps/web dev\" \"bun --filter ./apps/api dev\"",
+    "dev": "concurrently -n web,api -c blue,magenta \"bun --filter ./apps/web dev\" \"bun --filter ./apps/api dev\"",
     "build": "bun --filter '*' build"
   },
   "devDependencies": {

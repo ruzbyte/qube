@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -12,44 +12,35 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { Modpack } from "@/types/modpack";
-import { createMinecraftServer, minecraftApi } from "@/lib/api";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { IconCpu, IconServer } from "@tabler/icons-react";
-import { Textarea } from "../ui/textarea";
-import { toast } from "sonner";
-import { useState } from "react";
-import { RequestType } from "@/types/contaier";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Modpack } from '@/types/modpack';
+import { createMinecraftServer, minecraftApi } from '@/lib/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { IconCpu, IconServer } from '@tabler/icons-react';
+import { Textarea } from '../ui/textarea';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { RequestType } from '@/types/contaier';
+import { useRouter } from 'next/navigation';
 
 const deploySchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters").max(32),
+  name: z.string().min(3, 'Name must be at least 3 characters').max(32),
   port: z.number().min(1024).max(65535),
-  difficulty: z
-    .enum(["peaceful", "easy", "normal", "hard"])
-    .default("normal")
-    .optional(),
-  type: z.enum(["VANILLA", "BEDROCK", "AUTOCURSEFORGE"]),
+  difficulty: z.enum(['peaceful', 'easy', 'normal', 'hard']).default('normal').optional(),
+  type: z.enum(['VANILLA', 'BEDROCK', 'AUTO_CURSEFORGE']),
   memory: z.number().min(1).max(32), // In GB
   eula: z.boolean().refine((val) => val === true, {
-    message: "You must accept the EULA",
+    message: 'You must accept the EULA',
   }),
   whitelist: z.string().optional(),
   version: z.string().optional(),
@@ -65,23 +56,18 @@ interface DeployFormProps {
 }
 
 export function DeployForm({ slug, modpack }: DeployFormProps) {
-  const isModpack = slug !== "vanilla" && slug !== "bedrock";
+  const isModpack = slug !== 'vanilla' && slug !== 'bedrock';
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const defaultValues: Partial<DeployFormValues> = {
-    name: modpack
-      ? modpack.name
-      : slug === "vanilla"
-      ? "My Vanilla Server"
-      : "My Bedrock Server",
-    port: slug === "bedrock" ? 19132 : 25565,
-    type:
-      slug === "bedrock" ? "BEDROCK" : isModpack ? "AUTOCURSEFORGE" : "VANILLA",
+    name: modpack ? modpack.name : slug === 'vanilla' ? 'My Vanilla Server' : 'My Bedrock Server',
+    port: slug === 'bedrock' ? 19132 : 25565,
+    type: slug === 'bedrock' ? 'BEDROCK' : isModpack ? 'AUTO_CURSEFORGE' : 'VANILLA',
     memory: 4,
     eula: false,
-    whitelist: "",
-    version: "latest",
-    difficulty: "normal",
+    whitelist: '',
+    version: 'latest',
+    difficulty: 'normal',
     maxPlayers: 10,
     startOnDeploy: false,
   };
@@ -94,18 +80,12 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
   async function onSubmit(data: DeployFormValues) {
     setLoading(true);
 
-    if (data.type === "BEDROCK") {
-      toast.error("Bedrock servers are not supported yet.");
-      setLoading(false);
-      return;
-    }
-
     const requestBody: RequestType = {
       name: data.name,
       type: data.type,
-      timezone: "Europe/Berlin",
+      timezone: 'Europe/Berlin',
       maxPlayers: data.maxPlayers?.toString(),
-      maxMemory: data.memory.toString() + "G",
+      maxMemory: data.memory.toString() + 'G',
       port: data.port?.toString(),
       difficulty: data.difficulty,
       whitelist: data.whitelist,
@@ -116,12 +96,12 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
     const response = await createMinecraftServer(requestBody);
 
     if (response.error) {
-      toast.error("Error deploying server: " + response.error);
+      toast.error('Error deploying server: ' + response.error);
       return;
     }
 
     if (response.data) {
-      toast.success("Server deployed successfully!");
+      toast.success('Server deployed successfully!');
       form.reset();
       router.push(`/container/${response.data.id}`);
     }
@@ -163,9 +143,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                       <Input
                         type="number"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value))
-                        }
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -177,9 +155,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                 <FormLabel>Type</FormLabel>
                 <div className="flex items-center space-x-2 p-2 border rounded-md bg-muted/50">
                   <IconServer className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">
-                    {defaultValues.type}
-                  </span>
+                  <span className="text-sm font-medium">{defaultValues.type}</span>
                 </div>
               </div>
             </div>
@@ -191,9 +167,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                 <FormItem>
                   <FormLabel className="flex justify-between">
                     <span>Memory (RAM)</span>
-                    <span className="text-muted-foreground">
-                      {field.value} GB
-                    </span>
+                    <span className="text-muted-foreground">{field.value} GB</span>
                   </FormLabel>
                   <FormControl>
                     <Slider
@@ -204,9 +178,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                       onValueChange={(vals) => field.onChange(vals[0])}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Maximum memory allocated to the java process.
-                  </FormDescription>
+                  <FormDescription>Maximum memory allocated to the java process.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -220,10 +192,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Version</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select version" />
@@ -240,9 +209,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                           <SelectItem value="1.8.9">1.8.9</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormDescription>
-                        The minecraft version to use.
-                      </FormDescription>
+                      <FormDescription>The minecraft version to use.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -254,10 +221,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Difficulty</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select difficulty" />
@@ -270,9 +234,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                         <SelectItem value="hard">Hard</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      The game difficulty for the server.
-                    </FormDescription>
+                    <FormDescription>The game difficulty for the server.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -288,9 +250,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                       <Input
                         type="number"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value))
-                        }
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
                       />
                     </FormControl>
                     <FormDescription>
@@ -315,9 +275,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Comma-separated list of usernames to whitelist.
-                  </FormDescription>
+                  <FormDescription>Comma-separated list of usernames to whitelist.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -336,10 +294,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                         </FormDescription>
                       </div>
                       <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -350,18 +305,13 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                   render={({ field }) => (
                     <FormItem className="flex flex-row justify-between">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Start on Deploy
-                        </FormLabel>
+                        <FormLabel className="text-base">Start on Deploy</FormLabel>
                         <FormDescription>
                           Automatically start the server after deployment.
                         </FormDescription>
                       </div>
                       <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -369,14 +319,9 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
               </CardContent>
             </Card>
 
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
               <IconCpu className="w-4 h-4 mr-2" />
-              {loading ? "Deploying..." : ""}
+              {loading ? 'Deploying...' : ''}
               Deploy Server
             </Button>
           </form>
