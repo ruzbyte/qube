@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,7 +10,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  deleteContainer,
+  getContainerLogs,
+  restartContainer,
+  startContainer,
+  stopContainer,
+} from "@/lib/api";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   IconBox,
   IconClock,
@@ -18,7 +28,17 @@ import {
   IconActivity,
   IconCpu,
   IconTerminal,
+  IconPlayerStop,
+  IconPlayerStopFilled,
+  IconReload,
+  IconHandStop,
+  IconPlayerPlayFilled,
+  IconPlayerPauseFilled,
+  IconTrashFilled,
+  IconTrash,
 } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useRef } from "react";
 
 export interface ContainerInfo {
   name: string;
@@ -41,6 +61,40 @@ interface ContainerInspectViewProps {
 
 export function ContainerInspectView({ container }: ContainerInspectViewProps) {
   const isRunning = container.status.toLowerCase() === "running";
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
+  const [logs, setLogs] = React.useState<string[]>([]);
+
+  const invokeCommand = async (func: (id: string) => Promise<any>) => {
+    setLoading(true);
+    try {
+      await func(container.id);
+    } finally {
+      setLoading(false);
+      router.refresh();
+    }
+  };
+
+  useEffect(() => {
+    // Fetch logs when component mounts
+    const fetchLogs = async () => {
+      const result = await getContainerLogs(container.id);
+      if (result.data) {
+        const log = result.data.logs
+          .split("\n")
+          .filter((line) => line.trim() !== "");
+        setLogs(log);
+      } else if (result.error) {
+        setLogs([`Error fetching logs: ${JSON.stringify(result.error)}`]);
+      }
+    };
+
+    const interval = setInterval(() => {
+      fetchLogs();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -58,7 +112,7 @@ export function ContainerInspectView({ container }: ContainerInspectViewProps) {
             </span>
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-6">
           <Badge
             variant={isRunning ? "default" : "secondary"}
             className={isRunning ? "bg-green-600 hover:bg-green-700" : ""}
@@ -66,6 +120,71 @@ export function ContainerInspectView({ container }: ContainerInspectViewProps) {
             <IconActivity className="w-3 h-3 mr-1" />
             {container.status}
           </Badge>
+          <div className="flex items-center gap-3">
+            <div className="flex items-end gap-3">
+              {isRunning ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => await invokeCommand(stopContainer)}
+                >
+                  {!loading ? (
+                    <IconPlayerPauseFilled className="w-4 h-4" />
+                  ) : (
+                    <Spinner />
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => await invokeCommand(startContainer)}
+                >
+                  {!loading ? (
+                    <IconPlayerPlayFilled className="w-4 h-4" />
+                  ) : (
+                    <Spinner />
+                  )}
+                </Button>
+              )}
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!isRunning}
+                onClick={async () => await invokeCommand(restartContainer)}
+              >
+                {!loading ? <IconReload className="w-4 h-4" /> : <Spinner />}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!isRunning}
+                onClick={async () =>
+                  await invokeCommand((id) => stopContainer(id, true))
+                }
+              >
+                {!loading ? (
+                  <IconPlayerStopFilled className="w-4 h-4 text-red-500" />
+                ) : (
+                  <Spinner />
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isRunning}
+                onClick={async () => await invokeCommand(deleteContainer)}
+              >
+                {!loading ? (
+                  <IconTrash className="w-4 h-4 text-red-500" />
+                ) : (
+                  <Spinner />
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -253,19 +372,38 @@ export function ContainerInspectView({ container }: ContainerInspectViewProps) {
         </TabsContent>
 
         <TabsContent value="logs" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Logs</CardTitle>
+          <Card className=" border-zinc-800">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-zinc-100">Live Logs</CardTitle>
             </CardHeader>
             <CardContent>
-              <pre className="max-h-96 overflow-y-auto text-xs font-mono bg-black text-green-400 p-4 rounded-md">
-                {/* Placeholder for logs */}
-                Container logs will be displayed here.
-              </pre>
+              <ScrollArea className="h-[400px] w-full rounded-md border p-4 font-mono text-sm">
+                {logs.map((log, index) => (
+                  <div key={index} className="pb-2">
+                    <span className={`text-sm ${getColorFromLog(log)}`}>
+                      {log.slice(3)}
+                    </span>
+                  </div>
+                ))}
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
+}
+
+function getColorFromLog(log: string) {
+  if (log.includes("ERROR")) {
+    return "text-red-500";
+  }
+  if (log.includes("WARN")) {
+    return "text-yellow-400";
+  }
+
+  if (log.includes("INFO")) {
+    return "text-blue-400";
+  }
+  return "inherit";
 }

@@ -24,7 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Modpack } from "@/types/modpack";
-import { minecraftApi } from "@/lib/api";
+import { createMinecraftServer, minecraftApi } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -35,6 +35,9 @@ import {
 import { IconCpu, IconServer } from "@tabler/icons-react";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
+import { useState } from "react";
+import { RequestType } from "@/types/contaier";
+import { useRouter } from "next/navigation";
 
 const deploySchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters").max(32),
@@ -51,6 +54,7 @@ const deploySchema = z.object({
   whitelist: z.string().optional(),
   version: z.string().optional(),
   maxPlayers: z.number().min(1).max(100).optional(),
+  startOnDeploy: z.boolean().optional(),
 });
 
 type DeployFormValues = z.infer<typeof deploySchema>;
@@ -60,25 +64,10 @@ interface DeployFormProps {
   modpack?: Modpack;
 }
 
-interface RequestType {
-  port?: string | undefined;
-  difficulty?: "peaceful" | "easy" | "normal" | "hard" | undefined;
-  whitelist?: string | undefined;
-  version?: string | undefined;
-  motd?: string | undefined;
-  maxPlayers?: string | undefined;
-  onlineMode?: "true" | "false" | undefined;
-  seed?: string | undefined;
-  cfSlug?: string | undefined;
-  type: "VANILLA" | "AUTOCURSEFORGE";
-  name: string;
-  timezone: string;
-  maxMemory: string;
-}
-
 export function DeployForm({ slug, modpack }: DeployFormProps) {
   const isModpack = slug !== "vanilla" && slug !== "bedrock";
-
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const defaultValues: Partial<DeployFormValues> = {
     name: modpack
       ? modpack.name
@@ -94,6 +83,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
     version: "latest",
     difficulty: "normal",
     maxPlayers: 10,
+    startOnDeploy: false,
   };
 
   const form = useForm<DeployFormValues>({
@@ -102,8 +92,13 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
   });
 
   async function onSubmit(data: DeployFormValues) {
-    console.log("Deploying...", data);
-    if (data.type === "BEDROCK") return;
+    setLoading(true);
+
+    if (data.type === "BEDROCK") {
+      toast.error("Bedrock servers are not supported yet.");
+      setLoading(false);
+      return;
+    }
 
     const requestBody: RequestType = {
       name: data.name,
@@ -118,9 +113,20 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
       cfSlug: isModpack && modpack ? modpack.slug : undefined,
     };
 
-    const response = await minecraftApi.new.post(requestBody);
-    console.log("Response:", response);
-    // toast(response.error ? response.error : "Server deployed successfully!");
+    const response = await createMinecraftServer(requestBody);
+
+    if (response.error) {
+      toast.error("Error deploying server: " + response.error);
+      return;
+    }
+
+    if (response.data) {
+      toast.success("Server deployed successfully!");
+      form.reset();
+      router.push(`/container/${response.data.id}`);
+    }
+
+    setLoading(false);
   }
 
   return (
@@ -206,91 +212,95 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
               )}
             />
 
-            {!isModpack && (
+            <div className="flex flex-row justify-between">
+              {!isModpack && (
+                <FormField
+                  control={form.control}
+                  name="version"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Version</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select version" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="latest">Latest</SelectItem>
+                          <SelectItem value="1.20.4">1.20.4</SelectItem>
+                          <SelectItem value="1.20.1">1.20.1</SelectItem>
+                          <SelectItem value="1.19.4">1.19.4</SelectItem>
+                          <SelectItem value="1.18.2">1.18.2</SelectItem>
+                          <SelectItem value="1.16.5">1.16.5</SelectItem>
+                          <SelectItem value="1.12.2">1.12.2</SelectItem>
+                          <SelectItem value="1.8.9">1.8.9</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        The minecraft version to use.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
-                name="version"
+                name="difficulty"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Version</FormLabel>
+                    <FormLabel>Difficulty</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select version" />
+                          <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="latest">Latest</SelectItem>
-                        <SelectItem value="1.20.4">1.20.4</SelectItem>
-                        <SelectItem value="1.20.1">1.20.1</SelectItem>
-                        <SelectItem value="1.19.4">1.19.4</SelectItem>
-                        <SelectItem value="1.18.2">1.18.2</SelectItem>
-                        <SelectItem value="1.16.5">1.16.5</SelectItem>
-                        <SelectItem value="1.12.2">1.12.2</SelectItem>
-                        <SelectItem value="1.8.9">1.8.9</SelectItem>
+                        <SelectItem value="peaceful">Peaceful</SelectItem>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      The minecraft version to use.
+                      The game difficulty for the server.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            )}
-            <FormField
-              control={form.control}
-              name="difficulty"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Difficulty</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select difficulty" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="peaceful">Peaceful</SelectItem>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    The game difficulty for the server.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <FormField
-              control={form.control}
-              name="maxPlayers"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Max Players</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Maximum number of players allowed on the server.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="maxPlayers"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Max Players</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Maximum number of players allowed on the server.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -312,30 +322,61 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
                 </FormItem>
               )}
             />
+            <Card>
+              <CardContent className="space-y-2">
+                <FormField
+                  control={form.control}
+                  name="eula"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row justify-between items-center">
+                      <div className="space-y-0.5 flex-1 mr-4">
+                        <FormLabel className="text-base">Accept EULA</FormLabel>
+                        <FormDescription>
+                          You agree to the Minecraft End User License Agreement.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="startOnDeploy"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Start on Deploy
+                        </FormLabel>
+                        <FormDescription>
+                          Automatically start the server after deployment.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
 
-            <FormField
-              control={form.control}
-              name="eula"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Accept EULA</FormLabel>
-                    <FormDescription>
-                      You agree to the Minecraft End User License Agreement.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" className="w-full" size="lg">
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={loading}
+            >
               <IconCpu className="w-4 h-4 mr-2" />
+              {loading ? "Deploying..." : ""}
               Deploy Server
             </Button>
           </form>

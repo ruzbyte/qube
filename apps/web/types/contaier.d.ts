@@ -18,3 +18,19 @@ export interface ContainerCardProps {
   startedAt: string;
   status: string;
 }
+
+interface RequestType {
+  port?: string | undefined;
+  difficulty?: "peaceful" | "easy" | "normal" | "hard" | undefined;
+  whitelist?: string | undefined;
+  version?: string | undefined;
+  motd?: string | undefined;
+  maxPlayers?: string | undefined;
+  onlineMode?: "true" | "false" | undefined;
+  seed?: string | undefined;
+  cfSlug?: string | undefined;
+  type: "VANILLA" | "AUTOCURSEFORGE";
+  name: string;
+  timezone: string;
+  maxMemory: string;
+}

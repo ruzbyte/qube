@@ -16,6 +16,9 @@ import {
 } from "@tabler/icons-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { deleteContainer, startContainer, stopContainer } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { Badge } from "../ui/badge";
 
 const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
   {
@@ -33,7 +36,14 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
     },
   },
   {
-    id: "server",
+    id: "serverid",
+    header: "Server ID",
+    cell: ({ row }) => {
+      return <span className="font-mono">{row.original.name || "N/A"}</span>;
+    },
+  },
+  {
+    id: "Game",
     header: "Game",
     cell: ({ row }) => {
       console.log(row.original.labels);
@@ -54,9 +64,9 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
     cell: ({ getValue }) => (
       <div>
         {getValue() === "running" ? (
-          <span className="text-green-500">Running</span>
+          <Badge className="bg-green-500">Running</Badge>
         ) : (
-          <span className="text-red-500">Stopped</span>
+          <Badge className="bg-red-500">Stopped</Badge>
         )}
       </div>
     ),
@@ -71,6 +81,7 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const container = row.original;
+      const router = useRouter();
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -80,23 +91,43 @@ const columnDefinitions: ColumnDef<ContainerCardProps>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>
-              <div className="flex items-center gap-2">
+              <Link
+                href={`/container/${container.id}`}
+                className="flex items-center gap-2"
+              >
                 <IconSearch /> Inspect
-              </div>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               {container.status === "running" ? (
-                <div className="flex items-center gap-2">
+                <div
+                  onClick={async () => {
+                    await stopContainer(container.id);
+                    router.refresh();
+                  }}
+                  className="flex items-center gap-2"
+                >
                   <IconPlayerStopFilled /> Stop
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
+                <div
+                  onClick={async () => {
+                    await startContainer(container.id);
+                    router.refresh();
+                  }}
+                  className="flex items-center gap-2"
+                >
                   <IconPlayerPlayFilled /> Start
                 </div>
               )}
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <div className="flex items-center text-red-400 gap-2">
+              <div
+                className="flex items-center text-red-400 gap-2"
+                onClick={() =>
+                  deleteContainer(container.id).then(() => router.refresh())
+                }
+              >
                 <IconTrashFilled /> Delete
               </div>
             </DropdownMenuItem>
