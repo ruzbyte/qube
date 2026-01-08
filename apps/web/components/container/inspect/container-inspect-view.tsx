@@ -33,6 +33,8 @@ import {
 } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef } from 'react';
+import { executeServerCommand } from '@/lib/api';
+import { toast } from 'sonner';
 
 export interface ContainerInfo {
   name: string;
@@ -58,7 +60,7 @@ export function ContainerInspectView({ container }: ContainerInspectViewProps) {
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
   const [logs, setLogs] = React.useState<string[]>([]);
-
+  const [command, setCommand] = React.useState('');
   const invokeCommand = async (func: (id: string) => Promise<any>) => {
     setLoading(true);
     try {
@@ -66,6 +68,34 @@ export function ContainerInspectView({ container }: ContainerInspectViewProps) {
     } finally {
       setLoading(false);
       router.refresh();
+    }
+  };
+
+  const validateCommand = (): boolean => {
+    if (command.split.length == 1) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const executeMinecraftCommand = async () => {
+    if (command.length == 0 || !command) {
+      toast.error('No Command Specified');
+      return;
+    }
+
+    if (validateCommand() === false) {
+      toast.error('Invalid Command');
+      return;
+    }
+
+    const result = await executeServerCommand(container.id, command);
+
+    if (result.data) {
+      toast.success(result.data.output);
+    } else {
+      toast.error(result.error ? result.error.toString() : 'Error executing command');
     }
   };
 
@@ -222,7 +252,18 @@ export function ContainerInspectView({ container }: ContainerInspectViewProps) {
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 Run minecraft server command
-                <Input placeholder="op zaroc" />
+                <div className="flex gap-2">
+                  <Input placeholder="op zaroc" onChange={(e) => setCommand(e.target.value)} />
+
+                  <Button
+                    type="submit"
+                    onClick={async () => {
+                      invokeCommand(executeMinecraftCommand);
+                    }}
+                  >
+                    Execute
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

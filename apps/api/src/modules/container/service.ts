@@ -147,13 +147,10 @@ export class ContainerService {
 
     const filteredLabels = Object.entries(cInfo.Config.Labels)
       .filter(([key, _]) => key.startsWith('qube.'))
-      .reduce(
-        (obj, [key, value]) => {
-          obj[key] = value;
-          return obj;
-        },
-        {} as { [key: string]: string }
-      );
+      .reduce((obj, [key, value]) => {
+        obj[key] = value;
+        return obj;
+      }, {} as { [key: string]: string });
 
     const containerInfo: ContainerModel.containerInfo = {
       name: cInfo.Config.Labels['qube.server.name'] || cInfo.Name.replace('/', ''),

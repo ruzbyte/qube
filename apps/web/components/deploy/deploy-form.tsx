@@ -91,6 +91,7 @@ export function DeployForm({ slug, modpack }: DeployFormProps) {
       whitelist: data.whitelist,
       version: data.version,
       cfSlug: isModpack && modpack ? modpack.slug : undefined,
+      onlineMode: `${true}`,
     };
 
     const response = await createMinecraftServer(requestBody);

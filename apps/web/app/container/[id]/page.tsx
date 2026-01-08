@@ -9,8 +9,6 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
 
-  setTimeout(() => {}, 2000);
-
   const { data: container, error } = await containerApi({
     id,
   }).get();
