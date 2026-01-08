@@ -213,7 +213,7 @@ export class ContainerService {
     const container = await docker.createContainer(containerConfig)
     await NetworkService.connectContainerToNetworks(container.id)
 
-    if (params.startAfterCreation) return await this.startContainer(container.id)
+    if (params.startOnDeploy) return await this.startContainer(container.id)
 
     return this.getContainerInfo(container.id)
 

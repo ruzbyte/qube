@@ -50,7 +50,7 @@ export namespace ContainerModel {
     labels: t.Optional(t.Record(t.String(), t.String())),
     ports: t.Optional(t.Record(t.String(), t.String())),  // HostPort:ContainerPort
     traefikPort: t.Optional(t.String()),
-    startAfterCreation: t.Optional(t.Boolean({ default: false }))
+    startOnDeploy: t.Optional(t.Boolean({ default: false }))
   })
   export type createContainerBody = typeof createContainerBody.static
 

@@ -4,12 +4,13 @@ export namespace MinecraftModel {
 
   export const createBody = t.Object({
     name: t.String({ default: "Minecraft Server" }),
-    startAfterCreation: t.Optional(t.Boolean({ default: false })),
+    startOnDeploy: t.Optional(t.Boolean({ default: false })),
+    port: t.Optional(t.String()),
     timezone: t.String({ default: 'Europe/Berlin' }),
     maxMemory: t.String({ default: '4G' }),
     type: t.Union([
       t.Literal("VANILLA"),
-      // t.Literal("BEDROCK"),
+      t.Literal("BEDROCK"),
       t.Literal("AUTOCURSEFORGE"),
       // t.Literal("FABRIC"),
       // t.Literal("NEOFORGE"),
@@ -26,7 +27,6 @@ export namespace MinecraftModel {
     onlineMode: t.Optional(t.Union([t.Literal("true"), t.Literal("false")])),
     whitelist: t.Optional(t.String()),
     seed: t.Optional(t.String()),
-    port: t.Optional(t.String()),
     cfSlug: t.Optional(t.String()),
   })
   export type createBody = typeof createBody.static
